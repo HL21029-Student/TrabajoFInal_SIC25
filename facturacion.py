@@ -1,50 +1,99 @@
 from base_datos import BaseDatos
 from datetime import datetime
-from diario import LibroDiario
 
 class Facturacion:
     def __init__(self):
         self.db = BaseDatos()
-    
-    def crear_factura(self, cliente, monto, descripcion):
-        fecha_actual = datetime.now().strftime("%Y-%m-%d")
-        
+
+    def mostrar_menu_restaurante(self):
+        menu = self.db.obtener_datos('SELECT * FROM menu_restaurante ORDER BY categoria, nombre')
+        print("\n--- MENÚ DEL RESTAURANTE ---")
+        categorias = {}
+        for item in menu:
+            cat = item[2]
+            if cat not in categorias:
+                categorias[cat] = []
+            categorias[cat].append(item)
+
+        for categoria, items in categorias.items():
+            print(f"\n{categoria.upper()}:")
+            for item in items:
+                print(f"  {item[0]}. {item[1]} - ${item[3]:.2f} ({item[4]})")
+        return menu
+
+    def crear_factura(self, cliente, items=None, total=None):
+        if items is None:
+            items = []
+            print("\n--- CREANDO PEDIDO ---")
+            menu = self.mostrar_menu_restaurante()
+            while True:
+                try:
+                    id_item = input("ID del plato/bebida (o 'fin' para terminar): ")
+                    if id_item.lower() == 'fin':
+                        break
+                    id_item = int(id_item)
+                    item = next((i for i in menu if i[0] == id_item), None)
+                    if not item:
+                        print("ID no válido.")
+                        continue
+                    cantidad = int(input(f"Cantidad de {item[1]}: "))
+                    precio_unitario = item[3]
+                    subtotal = cantidad * precio_unitario
+                    items.append({
+                        'producto_id': item[0],
+                        'nombre_producto': item[1],
+                        'cantidad': cantidad,
+                        'precio_unitario': precio_unitario,
+                        'subtotal': subtotal
+                    })
+                    print(f"Agregado: {cantidad} x {item[1]} = ${subtotal:.2f}")
+                except ValueError:
+                    print("Entrada no válida.")
+
+        if not items:
+            print("No se agregaron items.")
+            return None
+
+        total = sum(item['subtotal'] for item in items)
+        fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.db.ejecutar_consulta(
             'INSERT INTO facturas (fecha, cliente, monto, descripcion) VALUES (?, ?, ?, ?)',
-            (fecha_actual, cliente, monto, descripcion)
+            (fecha, cliente, total, f"Pedido para {cliente}")
         )
-        
-        # Registrar en el diario (venta)
-        diario = LibroDiario()
-        diario.registrar_partida(
-            fecha_actual, 
-            f"Venta a {cliente} - {descripcion}",
-            "1.1.1",  # Caja (asumiendo pago en efectivo)
-            "4.1",    # Ventas
-            monto
+        factura_id = self.db.obtener_datos('SELECT last_insert_rowid()')[0][0]
+
+        for item in items:
+            self.db.ejecutar_consulta(
+                'INSERT INTO productos_factura (factura_id, producto_id, nombre_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?, ?)',
+                (factura_id, item['producto_id'], item['nombre_producto'], item['cantidad'], item['precio_unitario'], item['subtotal'])
+            )
+
+        return factura_id
+
+    def mostrar_factura(self, factura_id):
+        factura = self.db.obtener_datos(
+            'SELECT * FROM facturas WHERE id = ?',
+            (factura_id,)
+        )[0]
+
+        detalles = self.db.obtener_datos(
+            'SELECT * FROM productos_factura WHERE factura_id = ?',
+            (factura_id,)
         )
-        
-        print(f"\n--- FACTURA GENERADA ---")
-        print(f"Cliente: {cliente}")
-        print(f"Fecha: {fecha_actual}")
-        print(f"Descripción: {descripcion}")
-        print(f"Monto: ${monto}")
-        print("------------------------")
-    
-    def reporte_ventas_diarias(self, fecha=None):
-        if not fecha:
-            fecha = datetime.now().strftime("%Y-%m-%d")
-        
-        ventas = self.db.obtener_datos(
-            'SELECT * FROM facturas WHERE fecha = ?', 
-            (fecha,)
-        )
-        
-        print(f"\n--- REPORTE DE VENTAS DIARIAS ({fecha}) ---")
-        total_dia = 0
-        for venta in ventas:
-            print(f"Cliente: {venta[2]} | Monto: ${venta[3]} | Desc: {venta[4]}")
-            total_dia += venta[3]
-        
-        print(f"TOTAL DEL DÍA: ${total_dia}")
-        return ventas
+
+        print(f"\n--- FACTURA #{factura[0]} ---")
+        print(f"Cliente: {factura[2]}")
+        print(f"Fecha: {factura[1]}")
+        print(f"Total: ${factura[3]:.2f}")
+        print(f"Descripción: {factura[4]}")
+        print("\nDetalles del Pedido:")
+        for detalle in detalles:
+            print(f"- {detalle[3]} x {detalle[4]} = ${detalle[6]:.2f}")
+        print(f"\nTotal: ${factura[3]:.2f}")
+
+    def listar_facturas(self):
+        facturas = self.db.obtener_datos('SELECT * FROM facturas ORDER BY fecha DESC')
+        print("\n--- LISTADO DE FACTURAS ---")
+        for factura in facturas:
+            print(f"#{factura[0]} - {factura[2]} - {factura[1]} - ${factura[3]:.2f}")
+        return facturas

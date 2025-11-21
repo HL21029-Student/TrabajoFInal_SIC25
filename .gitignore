@@ -1,0 +1,12 @@
+# Entornos virtuales de Python
+venv/
+*.venv
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Archivos de build de PyInstaller
+build/
+dist/
+*.spec
