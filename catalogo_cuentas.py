@@ -42,13 +42,17 @@ class CatalogoCuentas:
                 )
             except:
                 pass  # La cuenta ya existe
-    
+        print("Catálogo de cuentas base verificado.")
+
     def agregar_cuenta(self, codigo, nombre, tipo, nivel):
         self.db.ejecutar_consulta(
             'INSERT INTO catalogo_cuentas VALUES (?, ?, ?, ?)',
             (codigo, nombre, tipo, nivel)
         )
-    
+
+    def obtener_cuenta(self, codigo):
+        return self.db.obtener_datos('SELECT * FROM catalogo_cuentas WHERE codigo = ?', (codigo,))
+
     def mostrar_catalogo(self):
         cuentas = self.db.obtener_datos('SELECT * FROM catalogo_cuentas ORDER BY codigo')
         print("\n--- CATÁLOGO DE CUENTAS ---")

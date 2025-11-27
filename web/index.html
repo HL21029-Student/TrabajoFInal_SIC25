@@ -12,10 +12,10 @@
   <style>
     /* VARIABLES DE TEMA RESTAURANTE */
     :root { 
-      --bg-body: #FFF8E7; /* Crema Fondo */
-      --primary: #A63333; /* Vino Tinto */
-      --secondary: #D4AF37; /* Dorado */
-      --text-main: #3E2723; /* Café Oscuro */
+      --bg-body: #FFF8E7;
+      --primary: #A63333;
+      --secondary: #D4AF37;
+      --text-main: #3E2723;
       --card-bg: #FFFFFF;
     }
 
@@ -26,43 +26,29 @@
       margin: 0; padding: 0; min-height: 100vh;
     }
 
-    /* Títulos elegantes */
-    h1, h2, h3, h4, h5, h6, .brand-font {
-      font-family: 'Playfair Display', serif;
-    }
+    h1, h2, h3, h4, h5, h6, .brand-font { font-family: 'Playfair Display', serif; }
 
-    /* Reemplazo de Glassmorphism por Tarjetas de Restaurante */
     .rest-card { 
       background: #FFFFFF; 
-      border: 1px solid rgba(212, 175, 55, 0.3); /* Borde dorado sutil */
+      border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 12px; 
       box-shadow: 0 4px 15px rgba(62, 39, 35, 0.08);
     }
 
-    /* Estilos de Login */
     .login-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      /* Gradiente elegante en lugar del oscuro anterior */
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
       background: linear-gradient(135deg, #3E2723 0%, #5D4037 100%); 
     }
     .login-card-width { max-width: 450px; width: 100%; }
 
-    /* Logo Circular Estilo Restaurante */
     .logo-circle {
-      width: 90px; height: 90px;
-      background: #FFFCE0;
-      border: 3px solid var(--secondary);
-      border-radius: 50%;
+      width: 100px; height: 100px; background: #FFFCE0;
+      border: 3px solid var(--secondary); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      margin: 0 auto 20px; box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
 
-    /* Quasar Overrides para el tema */
     .q-header { 
       background: linear-gradient(to right, #8B0000, #A63333) !important;
       border-bottom: 4px solid var(--secondary);
@@ -72,30 +58,16 @@
       border-top: 1px solid var(--secondary);
     }
     
-    /* Inputs claros */
-    .q-field--filled .q-field__control {
-      background: #F5F5F5 !important;
-      color: #3E2723 !important;
-    }
+    .q-field--filled .q-field__control { background: #F5F5F5 !important; color: #3E2723 !important; }
     .q-field__label { color: #5D4037 !important; }
 
-    /* Tablas elegantes */
-    .q-table {
-      background: #FFFFFF !important;
-      color: #3E2723 !important;
-    }
+    .q-table { background: #FFFFFF !important; color: #3E2723 !important; }
     .q-table th {
-      color: var(--primary) !important;
-      font-weight: 700 !important;
-      font-size: 0.9rem;
-      text-transform: uppercase;
+      color: var(--primary) !important; font-weight: 700 !important;
+      font-size: 0.9rem; text-transform: uppercase;
       border-bottom: 2px solid var(--secondary) !important;
     }
-    .q-table tbody tr:hover {
-      background: #FFFCE0 !important; /* Hover crema */
-    }
-    
-    /* Pestañas */
+    .q-table tbody tr:hover { background: #FFFCE0 !important; }
     .q-tab__label { font-weight: bold; }
   </style>
 </head>
@@ -114,7 +86,7 @@
       setup () {
         const $q = useQuasar()
 
-        // --- LÓGICA ORIGINAL DEL USUARIO (MANTENIDA INTACTA) ---
+        // --- AUTH ---
         const isAuthenticated = ref(false)
         const currentUser = ref(null)
         const authTab = ref('login')
@@ -125,9 +97,8 @@
 
         onMounted(() => {
           const storedUsers = localStorage.getItem('contabilidad_users')
-          if (storedUsers) {
-            users.value = JSON.parse(storedUsers)
-          } else {
+          if (storedUsers) { users.value = JSON.parse(storedUsers) } 
+          else {
             users.value = [
               { id: 1, username: 'admin', password: '123', name: 'Administrador', role: 'admin' },
               { id: 2, username: 'contador', password: '123', name: 'Contador General', role: 'accountant' }
@@ -138,12 +109,10 @@
         })
 
         const handleLogin = async () => {
-          loginLoading.value = true
-          await new Promise(resolve => setTimeout(resolve, 800))
+          loginLoading.value = true; await new Promise(resolve => setTimeout(resolve, 800))
           const user = users.value.find(u => u.username === loginForm.username && u.password === loginForm.password)
           if (user) {
-            isAuthenticated.value = true
-            currentUser.value = { ...user }
+            isAuthenticated.value = true; currentUser.value = { ...user }
             $q.notify({ type: 'positive', message: `¡Bienvenido ${user.name}!`, icon: 'restaurant', color: 'green-8' })
           } else {
             $q.notify({ type: 'negative', message: 'Credenciales incorrectas', icon: 'error', color: 'red-9' })
@@ -153,48 +122,87 @@
 
         const handleRegister = async () => {
           if (!registerForm.name || !registerForm.username || !registerForm.password) {
-            $q.notify({ type: 'warning', message: 'Completa todos los campos', color: 'orange-8' })
-            return
+            $q.notify({ type: 'warning', message: 'Completa todos los campos', color: 'orange-8' }); return
           }
-          loginLoading.value = true
-          await new Promise(resolve => setTimeout(resolve, 800))
+          loginLoading.value = true; await new Promise(resolve => setTimeout(resolve, 800))
           if (users.value.find(u => u.username === registerForm.username)) {
-            $q.notify({ type: 'negative', message: 'El usuario ya existe', color: 'red-9' })
-            loginLoading.value = false; return
+            $q.notify({ type: 'negative', message: 'El usuario ya existe', color: 'red-9' }); loginLoading.value = false; return
           }
           const newUser = { id: Date.now(), name: registerForm.name, username: registerForm.username, password: registerForm.password, role: 'user' }
-          users.value.push(newUser)
-          localStorage.setItem('contabilidad_users', JSON.stringify(users.value))
+          users.value.push(newUser); localStorage.setItem('contabilidad_users', JSON.stringify(users.value))
           $q.notify({ type: 'positive', message: 'Registro exitoso. Recargando...', icon: 'save', timeout: 1500, color: 'green-8' })
           setTimeout(() => { window.location.reload() }, 1500)
         }
 
         const handleLogout = () => {
-          $q.dialog({ title: 'Cerrar sesión', message: '¿Estás seguro que deseas salir?', cancel: true, persistent: true, color: 'brown' })
-            .onOk(() => { isAuthenticated.value = false; currentUser.value = null; loginForm.username = ''; loginForm.password = ''; $q.notify({ type: 'info', message: 'Sesión cerrada', color: 'brown' }) })
+          $q.dialog({ title: 'Cerrar sesión', message: '¿Salir del sistema?', cancel: true, persistent: true, color: 'brown' })
+            .onOk(() => { isAuthenticated.value = false; currentUser.value = null; loginForm.username = ''; loginForm.password = ''; })
         }
 
-        // --- SISTEMA CONTABLE ---
+        // --- SISTEMA ---
         const page = ref('catalogo')
         const loading = ref(false)
         const error = ref(null)
 
         const catalogo = ref([]); const diario = ref([]); const ventas = ref([])
         const mayor = ref([]); const balanza = ref(null); const balanceGeneral = ref(null)
+        const menuRestaurante = ref([]); const listaFacturas = ref([])
         
-        const formPartida = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: '', cuenta_haber: '', monto: null })
-        const formAjuste = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: '', cuenta_haber: '', monto: null })
+        const formPartida = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: null, cuenta_haber: null, monto: null })
+        const formAjuste = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: null, cuenta_haber: null, monto: null })
         const formFactura = reactive({ cliente: '', nit: '', direccion: '', descripcion: '', cantidad: 1, precio_unitario: null, monto: null })
         const facturaPreview = ref(null)
 
-        const loadAppData = () => { fetchCatalogo(); fetchDiario(); fetchVentas(); fetchMayor(); fetchBalanza(); fetchBalanceGeneral(); }
+        // Variables para gestión de catálogo
+        const showAddCuentaDialog = ref(false)
+        const showEditCuentaDialog = ref(false)
+        const formCuenta = reactive({ codigo: '', nombre: '', tipo: '', nivel: 1 })
+        const cuentaSeleccionada = ref(null)
 
-        const fetchCatalogo = async () => { loading.value = true; error.value = null; try { const { data } = await axios.get('/api/catalogo'); catalogo.value = data } catch (e) { error.value = 'No se pudo cargar el catálogo' } finally { loading.value = false } }
+        // Variables para edición de partidas
+        const showEditPartidaDialog = ref(false)
+        const formPartidaEdit = reactive({ id: null, fecha: '', descripcion: '', cuenta_debe: '', cuenta_haber: '', monto: '' })
+
+        // --- VARIABLES PARA EL AUTOCOMPLETADO ---
+        const optionsDebe = ref([])
+        const optionsHaber = ref([])
+
+        // Función de filtrado para el buscador de cuentas
+        const filterAccounts = (val, update, optionsRef) => {
+          if (val === '') {
+            update(() => { optionsRef.value = catalogo.value })
+            return
+          }
+          update(() => {
+            const needle = val.toLowerCase()
+            optionsRef.value = catalogo.value.filter(v => 
+              v.nombre.toLowerCase().indexOf(needle) > -1 || 
+              v.codigo.indexOf(needle) > -1
+            )
+          })
+        }
+        
+        // Wrappers para pasar la referencia correcta
+        const filterFnDebe = (val, update) => filterAccounts(val, update, optionsDebe)
+        const filterFnHaber = (val, update) => filterAccounts(val, update, optionsHaber)
+
+        const loadAppData = () => { fetchCatalogo(); fetchDiario(); fetchVentas(); fetchMayor(); fetchBalanza(); fetchBalanceGeneral(); fetchMenuRestaurante(); fetchListaFacturas(); }
+
+        const fetchCatalogo = async () => { 
+          loading.value = true; error.value = null; 
+          try { 
+            const { data } = await axios.get('/api/catalogo'); 
+            catalogo.value = data 
+          } catch (e) { error.value = 'No se pudo cargar el catálogo' } 
+          finally { loading.value = false } 
+        }
         const fetchDiario = async () => { try { const { data } = await axios.get('/api/diario'); diario.value = data } catch (e) {} }
         const fetchVentas = async () => { try { const { data } = await axios.get('/api/ventas'); ventas.value = data } catch (e) {} }
         const fetchMayor = async () => { try { const { data } = await axios.get('/api/mayor'); mayor.value = data } catch (e) {} }
         const fetchBalanza = async () => { try { const { data } = await axios.get('/api/balanza'); balanza.value = data } catch (e) {} }
         const fetchBalanceGeneral = async () => { try { const { data } = await axios.get('/api/balance-general'); balanceGeneral.value = data } catch (e) {} }
+        const fetchMenuRestaurante = async () => { try { const { data } = await axios.get('/api/menu-restaurante'); menuRestaurante.value = data } catch (e) {} }
+        const fetchListaFacturas = async () => { try { const { data } = await axios.get('/api/facturas'); listaFacturas.value = data } catch (e) {} }
 
         const registrarPartida = async () => {
           loading.value = true; error.value = null
@@ -202,9 +210,9 @@
             const payload = { ...formPartida, creado_por: currentUser.value.username, usuario_id: currentUser.value.id }
             await axios.post('/api/partida', payload)
             $q.notify({ type: 'positive', message: 'Partida registrada', color: 'green-8' })
-            formPartida.descripcion = ''; formPartida.cuenta_debe = ''; formPartida.cuenta_haber = ''; formPartida.monto = null
+            formPartida.descripcion = ''; formPartida.cuenta_debe = null; formPartida.cuenta_haber = null; formPartida.monto = null
             fetchDiario()
-          } catch (e) { error.value = 'No se pudo registrar (Sin conexión al servidor)' } finally { loading.value = false }
+          } catch (e) { error.value = 'No se pudo registrar (Sin conexión)' } finally { loading.value = false }
         }
 
         const crearFactura = async() => {
@@ -213,12 +221,12 @@
             const monto = (formFactura.cantidad || 1) * (formFactura.precio_unitario || 0)
             const payload = { ...formFactura, monto: monto, vendedor: currentUser.value.name }
             const { data } = await axios.post('/api/factura', payload)
-            $q.notify({ type: 'positive', message: 'Factura creada exitosamente', color: 'green-8' })
+            $q.notify({ type: 'positive', message: 'Factura creada', color: 'green-8' })
             facturaPreview.value = { ...payload, id: data.id || 'DRAFT-' + Date.now(), fecha: new Date().toLocaleDateString('es-SV') }
             formFactura.cliente = ''; formFactura.nit = ''; formFactura.direccion = ''; formFactura.descripcion = ''; formFactura.cantidad = 1; formFactura.precio_unitario = null
             fetchVentas()
           } catch (e) {
-            $q.notify({ type: 'warning', message: 'Modo Demo: Factura generada localmente', color: 'orange-8' })
+            $q.notify({ type: 'warning', message: 'Modo Demo', color: 'orange-8' })
             const monto = (formFactura.cantidad || 1) * (formFactura.precio_unitario || 0)
             facturaPreview.value = { ...formFactura, monto: monto, vendedor: currentUser.value.name, id: 'DEMO-' + Date.now(), fecha: new Date().toLocaleDateString('es-SV') }
           } finally { loading.value = false }
@@ -227,73 +235,144 @@
         const imprimirFactura = () => {
           const printContent = document.getElementById('factura-preview')
           if (printContent) {
-            const printWindow = window.open('', '', 'height=600,width=800')
-            printWindow.document.write('<html><head><title>Factura</title></head><body>')
-            printWindow.document.write(printContent.innerHTML)
-            printWindow.document.write('</body></html>')
-            printWindow.document.close(); printWindow.print()
+            const w = window.open('', '', 'height=600,width=800'); w.document.write('<html><body>'+printContent.innerHTML+'</body></html>'); w.document.close(); w.print()
           }
         }
 
         const registrarAjuste = async () => {
-          loading.value = true; error.value = null
-          try {
-            const payload = { ...formAjuste, creado_por: currentUser.value.username }
-            await axios.post('/api/partida-ajuste', payload)
-            $q.notify({ type: 'positive', message: 'Partida de ajuste registrada', color: 'green-8' })
-            formAjuste.descripcion = ''; formAjuste.cuenta_debe = ''; formAjuste.cuenta_haber = ''; formAjuste.monto = null
-            fetchDiario()
-          } catch (e) { error.value = 'No se pudo registrar el ajuste' } finally { loading.value = false }
+          loading.value = true; try { await axios.post('/api/partida-ajuste', { ...formAjuste, creado_por: currentUser.value.username }); $q.notify({ type: 'positive', message: 'Ajuste registrado', color: 'green-8' }); formAjuste.descripcion=''; formAjuste.cuenta_debe=null; formAjuste.cuenta_haber=null; formAjuste.monto=null; fetchDiario() } catch (e) {} finally { loading.value = false }
         }
 
-        return { isAuthenticated, currentUser, authTab, loginForm, registerForm, loginLoading, handleLogin, handleRegister, handleLogout, page, loading, error, catalogo, diario, ventas, mayor, balanza, balanceGeneral, formPartida, formAjuste, formFactura, facturaPreview, registrarPartida, registrarAjuste, crearFactura, imprimirFactura, fetchCatalogo, fetchDiario, fetchVentas }
+        // Funciones para gestión de catálogo
+        const agregarCuenta = async () => {
+          loading.value = true; error.value = null
+          try {
+            await axios.post('/api/catalogo', formCuenta)
+            $q.notify({ type: 'positive', message: 'Cuenta agregada exitosamente', color: 'green-8' })
+            showAddCuentaDialog.value = false
+            formCuenta.codigo = ''; formCuenta.nombre = ''; formCuenta.tipo = ''; formCuenta.nivel = 1
+            fetchCatalogo()
+          } catch (e) {
+            error.value = 'Error al agregar cuenta'
+            $q.notify({ type: 'negative', message: 'Error al agregar cuenta', color: 'red-9' })
+          } finally { loading.value = false }
+        }
+
+        const editCuenta = (cuenta) => {
+          cuentaSeleccionada.value = cuenta
+          formCuenta.codigo = cuenta.codigo
+          formCuenta.nombre = cuenta.nombre
+          formCuenta.tipo = cuenta.tipo
+          formCuenta.nivel = cuenta.nivel
+          showEditCuentaDialog.value = true
+        }
+
+        const actualizarCuenta = async () => {
+          loading.value = true; error.value = null
+          try {
+            await axios.put(`/api/catalogo/${formCuenta.codigo}`, formCuenta)
+            $q.notify({ type: 'positive', message: 'Cuenta actualizada exitosamente', color: 'green-8' })
+            showEditCuentaDialog.value = false
+            formCuenta.codigo = ''; formCuenta.nombre = ''; formCuenta.tipo = ''; formCuenta.nivel = 1
+            fetchCatalogo()
+          } catch (e) {
+            error.value = 'Error al actualizar cuenta'
+            $q.notify({ type: 'negative', message: 'Error al actualizar cuenta', color: 'red-9' })
+          } finally { loading.value = false }
+        }
+
+        const deleteCuenta = (cuenta) => {
+          $q.dialog({
+            title: 'Eliminar Cuenta',
+            message: `¿Está seguro de eliminar la cuenta "${cuenta.nombre}"?`,
+            cancel: true,
+            persistent: true,
+            color: 'negative'
+          }).onOk(async () => {
+            loading.value = true; error.value = null
+            try {
+              await axios.delete(`/api/catalogo/${cuenta.codigo}`)
+              $q.notify({ type: 'positive', message: 'Cuenta eliminada exitosamente', color: 'green-8' })
+              fetchCatalogo()
+            } catch (e) {
+              error.value = 'Error al eliminar cuenta'
+              $q.notify({ type: 'negative', message: 'Error al eliminar cuenta', color: 'red-9' })
+            } finally { loading.value = false }
+          })
+        }
+
+        // Funciones para edición de partidas
+        const editPartida = (partida) => {
+          formPartidaEdit.id = partida.id
+          formPartidaEdit.fecha = partida.fecha
+          formPartidaEdit.descripcion = partida.descripcion
+          formPartidaEdit.cuenta_debe = partida.cuenta_debe
+          formPartidaEdit.cuenta_haber = partida.cuenta_haber
+          formPartidaEdit.monto = partida.monto
+          showEditPartidaDialog.value = true
+        }
+
+        const actualizarPartida = async () => {
+          loading.value = true; error.value = null
+          try {
+            await axios.put(`/api/diario/${formPartidaEdit.id}`, { descripcion: formPartidaEdit.descripcion })
+            $q.notify({ type: 'positive', message: 'Partida actualizada exitosamente', color: 'green-8' })
+            showEditPartidaDialog.value = false
+            fetchDiario()
+          } catch (e) {
+            error.value = 'Error al actualizar partida'
+            $q.notify({ type: 'negative', message: 'Error al actualizar partida', color: 'red-9' })
+          } finally { loading.value = false }
+        }
+
+        return {
+          isAuthenticated, currentUser, authTab, loginForm, registerForm, loginLoading, handleLogin, handleRegister, handleLogout,
+          page, loading, error, catalogo, diario, ventas, mayor, balanza, balanceGeneral, menuRestaurante, listaFacturas,
+          formPartida, formAjuste, formFactura, facturaPreview,
+          registrarPartida, registrarAjuste, crearFactura, imprimirFactura, fetchCatalogo, fetchDiario, fetchVentas, fetchMenuRestaurante, fetchListaFacturas,
+          // Nuevas variables y funciones para el filtro
+          optionsDebe, optionsHaber, filterFnDebe, filterFnHaber,
+          // Funciones para gestión de catálogo
+          showAddCuentaDialog, showEditCuentaDialog, formCuenta, cuentaSeleccionada,
+          agregarCuenta, editCuenta, actualizarCuenta, deleteCuenta,
+          // Funciones para edición de partidas
+          showEditPartidaDialog, formPartidaEdit, editPartida, actualizarPartida
+        }
       },
       template: `
         <div v-if="!isAuthenticated" class="login-container">
           <div class="login-card-width">
             <div class="rest-card q-pa-lg">
-              
               <div class="logo-circle">
-                 <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
-                    <path d="M50 20 C35 20 30 35 30 45 L70 45 C70 35 65 20 50 20Z" fill="#A63333"/>
-                    <path d="M40 15 Q45 5 50 15 T60 15" stroke="#D4AF37" stroke-width="5" stroke-linecap="round"/>
-                 </svg>
+                 <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="48" stroke="#A63333" stroke-width="4" fill="#FFFCE0"/>
+                  <path d="M30 65 C30 65 35 85 50 85 C65 85 70 65 70 65" stroke="#A63333" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M50 20 C35 20 30 35 30 45 L70 45 C70 35 65 20 50 20Z" fill="#A63333"/>
+                  <path d="M40 15 Q45 5 50 15 T60 15" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M40 55 L40 75" stroke="#A63333" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M60 55 L60 75" stroke="#A63333" stroke-width="3" stroke-linecap="round"/>
+                </svg>
               </div>
-              
               <div class="text-center q-mb-lg">
                 <div class="text-h4 brand-font text-weight-bold" style="color: #A63333;">El Buen Gusto</div>
                 <div class="text-caption text-brown">Sistema de Gestión</div>
               </div>
-
               <q-tabs v-model="authTab" dense class="text-brown" active-color="primary" indicator-color="primary" align="justify" class="q-mb-md">
-                <q-tab name="login" label="Iniciar Sesión" />
-                <q-tab name="register" label="Registrarse" />
+                <q-tab name="login" label="Iniciar Sesión" /><q-tab name="register" label="Registrarse" />
               </q-tabs>
-
               <q-tab-panels v-model="authTab" animated>
                 <q-tab-panel name="login" class="q-pa-none">
                   <q-form @submit.prevent="handleLogin">
-                    <q-input v-model="loginForm.username" filled label="Usuario" class="q-mb-md" color="brown">
-                      <template v-slot:prepend><q-icon name="person" color="brown" /></template>
-                    </q-input>
-                    <q-input v-model="loginForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown">
-                      <template v-slot:prepend><q-icon name="lock" color="brown" /></template>
-                    </q-input>
+                    <q-input v-model="loginForm.username" filled label="Usuario" class="q-mb-md" color="brown"><template v-slot:prepend><q-icon name="person" color="brown" /></template></q-input>
+                    <q-input v-model="loginForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown"><template v-slot:prepend><q-icon name="lock" color="brown" /></template></q-input>
                     <q-btn type="submit" style="background: #A63333; color: white" label="Entrar" class="full-width" size="lg" :loading="loginLoading" icon="login" />
                   </q-form>
                 </q-tab-panel>
-
                 <q-tab-panel name="register" class="q-pa-none">
                   <q-form @submit.prevent="handleRegister">
-                    <q-input v-model="registerForm.name" filled label="Nombre Completo" class="q-mb-sm" color="brown" dense>
-                      <template v-slot:prepend><q-icon name="badge" /></template>
-                    </q-input>
-                    <q-input v-model="registerForm.username" filled label="Usuario deseado" class="q-mb-sm" color="brown" dense>
-                      <template v-slot:prepend><q-icon name="person" /></template>
-                    </q-input>
-                    <q-input v-model="registerForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown" dense>
-                      <template v-slot:prepend><q-icon name="key" /></template>
-                    </q-input>
+                    <q-input v-model="registerForm.name" filled label="Nombre" class="q-mb-sm" color="brown" dense><template v-slot:prepend><q-icon name="badge" /></template></q-input>
+                    <q-input v-model="registerForm.username" filled label="Usuario" class="q-mb-sm" color="brown" dense><template v-slot:prepend><q-icon name="person" /></template></q-input>
+                    <q-input v-model="registerForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown" dense><template v-slot:prepend><q-icon name="key" /></template></q-input>
                     <q-btn type="submit" style="background: #D4AF37; color: #3E2723" label="Registrar" class="full-width" size="lg" :loading="loginLoading" icon="save" />
                   </q-form>
                 </q-tab-panel>
@@ -305,33 +384,21 @@
         <q-layout v-else view="hHh lpR fFf" style="background-color: var(--bg-body);">
           <q-header elevated>
             <q-toolbar class="q-py-sm">
-              <q-avatar square size="42px" class="q-mr-sm bg-white text-primary">
-                 <q-icon name="restaurant" />
-              </q-avatar>
-              <q-toolbar-title class="brand-font text-weight-bold">
-                El Buen Gusto
-                <div class="text-caption text-secondary" style="line-height: 1;">Sistema Contable</div>
-              </q-toolbar-title>
-              
+              <q-avatar square size="42px" class="q-mr-sm bg-white text-primary"><q-icon name="restaurant" /></q-avatar>
+              <q-toolbar-title class="brand-font text-weight-bold">El Buen Gusto<div class="text-caption text-secondary" style="line-height: 1;">Sistema Contable</div></q-toolbar-title>
               <div class="row items-center q-gutter-sm">
-                <div class="text-right gt-xs">
-                  <div class="text-weight-bold">{{ currentUser.name }}</div>
-                  <div class="text-caption text-orange-2">{{ currentUser.role }}</div>
-                </div>
+                <div class="text-right gt-xs"><div class="text-weight-bold">{{ currentUser.name }}</div><div class="text-caption text-orange-2">{{ currentUser.role }}</div></div>
                 <q-btn flat round dense icon="logout" @click="handleLogout" />
               </div>
             </q-toolbar>
-
             <q-tabs v-model="page" align="left" class="bg-white text-brown-10 shadow-2" active-color="primary" indicator-color="primary" dense>
-              <q-tab name="catalogo" label="Catálogo" />
-              <q-tab name="manual" label="Manual" />
-              <q-tab name="diario" label="Diario" />
-              <q-tab name="mayor" label="Mayor" />
-              <q-tab name="ajustes" label="Ajustes" />
-              <q-tab name="balanza" label="Balanza" />
+              <q-tab name="catalogo" label="Catálogo" /><q-tab name="manual" label="Manual" /><q-tab name="diario" label="Diario" />
+              <q-tab name="mayor" label="Mayor" /><q-tab name="ajustes" label="Ajustes" /><q-tab name="balanza" label="Balanza" />
               <q-tab name="estados-financieros" label="Estados Fin." />
+              <q-tab name="menu-restaurante" icon="restaurant_menu" label="Menú" />
               <q-tab name="facturacion" icon="receipt" label="Facturación" />
               <q-tab name="ventas" label="Ventas" />
+              <q-tab name="lista-facturas" icon="list_alt" label="Facturas" />
             </q-tabs>
           </q-header>
 
@@ -339,26 +406,72 @@
             <q-page padding class="q-pb-xl">
               <div class="row q-col-gutter-md justify-center">
                 <div class="col-12 col-xl-10">
-                  
-                  <q-banner v-if="error" rounded class="bg-red-9 text-white q-mb-md">
-                    <q-icon name="warning" class="q-mr-sm" /> {{ error }}
-                  </q-banner>
+                  <q-banner v-if="error" rounded class="bg-red-9 text-white q-mb-md"><q-icon name="warning" class="q-mr-sm" /> {{ error }}</q-banner>
 
                   <div v-show="page === 'catalogo'">
-                    <div class="rest-card q-pa-md">
+                    <div class="rest-card q-pa-md q-mb-md">
                       <div class="row items-center q-mb-sm">
-                        <div class="col">
-                          <div class="text-h6 text-primary brand-font">Catálogo de cuentas</div>
+                        <div class="col"><div class="text-h6 text-primary brand-font">Catálogo de cuentas</div></div>
+                        <div class="col-auto">
+                          <q-btn flat color="primary" icon="add" label="Agregar Cuenta" @click="showAddCuentaDialog = true" />
+                          <q-btn flat color="primary" icon="refresh" @click="fetchCatalogo" />
                         </div>
-                        <q-btn flat color="primary" icon="refresh" @click="fetchCatalogo" />
                       </div>
-                      <q-table dense flat :rows="catalogo" :columns="[
-                        { name: 'codigo', label: 'Código', field: 'codigo', sortable: true },
-                        { name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },
-                        { name: 'tipo', label: 'Tipo', field: 'tipo', sortable: true },
-                        { name: 'nivel', label: 'Nivel', field: 'nivel', sortable: true }
-                      ]" row-key="codigo" :loading="loading" />
+                      <q-table dense flat :rows="catalogo" :columns="[{ name: 'codigo', label: 'Código', field: 'codigo', sortable: true },{ name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },{ name: 'tipo', label: 'Tipo', field: 'tipo', sortable: true },{ name: 'nivel', label: 'Nivel', field: 'nivel', sortable: true }, { name: 'acciones', label: 'Acciones', field: 'acciones' }]" row-key="codigo" :loading="loading">
+                        <template v-slot:body-cell-acciones="props">
+                          <q-td :props="props">
+                            <q-btn flat dense icon="edit" color="primary" @click="editCuenta(props.row)" />
+                            <q-btn flat dense icon="delete" color="negative" @click="deleteCuenta(props.row)" />
+                          </q-td>
+                        </template>
+                      </q-table>
                     </div>
+
+                    <!-- Dialog para agregar cuenta -->
+                    <q-dialog v-model="showAddCuentaDialog" persistent>
+                      <q-card style="min-width: 400px;">
+                        <q-card-section class="row items-center">
+                          <div class="text-h6">Agregar Nueva Cuenta</div>
+                          <q-space />
+                          <q-btn icon="close" flat round dense v-close-popup />
+                        </q-card-section>
+                        <q-card-section>
+                          <q-form @submit.prevent="agregarCuenta">
+                            <q-input v-model="formCuenta.codigo" filled label="Código" dense class="q-mb-sm" />
+                            <q-input v-model="formCuenta.nombre" filled label="Nombre" dense class="q-mb-sm" />
+                            <q-select v-model="formCuenta.tipo" :options="['Activo', 'Pasivo', 'Capital', 'Ingreso', 'Gasto']" filled label="Tipo" dense class="q-mb-sm" />
+                            <q-input v-model.number="formCuenta.nivel" filled label="Nivel" type="number" dense class="q-mb-sm" />
+                            <div class="q-mt-md">
+                              <q-btn type="submit" style="background: var(--primary); color: white;" label="Agregar" :loading="loading" />
+                              <q-btn flat label="Cancelar" v-close-popup class="q-ml-sm" />
+                            </div>
+                          </q-form>
+                        </q-card-section>
+                      </q-card>
+                    </q-dialog>
+
+                    <!-- Dialog para editar cuenta -->
+                    <q-dialog v-model="showEditCuentaDialog" persistent>
+                      <q-card style="min-width: 400px;">
+                        <q-card-section class="row items-center">
+                          <div class="text-h6">Editar Cuenta</div>
+                          <q-space />
+                          <q-btn icon="close" flat round dense v-close-popup />
+                        </q-card-section>
+                        <q-card-section>
+                          <q-form @submit.prevent="actualizarCuenta">
+                            <q-input v-model="formCuenta.codigo" filled label="Código" dense class="q-mb-sm" readonly />
+                            <q-input v-model="formCuenta.nombre" filled label="Nombre" dense class="q-mb-sm" />
+                            <q-select v-model="formCuenta.tipo" :options="['Activo', 'Pasivo', 'Capital', 'Ingreso', 'Gasto']" filled label="Tipo" dense class="q-mb-sm" />
+                            <q-input v-model.number="formCuenta.nivel" filled label="Nivel" type="number" dense class="q-mb-sm" />
+                            <div class="q-mt-md">
+                              <q-btn type="submit" style="background: var(--primary); color: white;" label="Actualizar" :loading="loading" />
+                              <q-btn flat label="Cancelar" v-close-popup class="q-ml-sm" />
+                            </div>
+                          </q-form>
+                        </q-card-section>
+                      </q-card>
+                    </q-dialog>
                   </div>
 
                   <div v-show="page === 'manual'">
@@ -368,15 +481,7 @@
                         <q-item v-for="cuenta in catalogo" :key="cuenta.codigo" class="q-pa-md">
                           <q-item-section>
                             <q-item-label class="text-h6 text-secondary">{{ cuenta.codigo }} - {{ cuenta.nombre }}</q-item-label>
-                            <q-item-label caption class="q-mt-sm text-grey-8">
-                              <strong>Tipo:</strong> {{ cuenta.tipo }} | <strong>Nivel:</strong> {{ cuenta.nivel }}
-                            </q-item-label>
-                            <q-item-label class="q-mt-sm text-brown">
-                              <template v-if="cuenta.codigo === '1.1.1'"><strong>Uso:</strong> Controla el efectivo disponible en caja.</template>
-                              <template v-else-if="cuenta.codigo === '1.1.2'"><strong>Uso:</strong> Registra los saldos en cuentas bancarias.</template>
-                              <template v-else-if="cuenta.codigo === '4.1'"><strong>Uso:</strong> Ingresos por ventas de platillos y bebidas.</template>
-                              <template v-else><strong>Uso:</strong> Definido por el contador del restaurante.</template>
-                            </q-item-label>
+                            <q-item-label caption class="q-mt-sm text-grey-8"><strong>Tipo:</strong> {{ cuenta.tipo }}</q-item-label>
                           </q-item-section>
                         </q-item>
                       </q-list>
@@ -389,10 +494,70 @@
                       <q-form @submit.prevent="registrarPartida">
                         <q-input v-model="formPartida.fecha" filled label="Fecha" readonly class="q-mb-sm" dense />
                         <q-input v-model="formPartida.descripcion" filled label="Descripción" class="q-mb-sm" dense />
+                        
                         <div class="row q-col-gutter-sm">
-                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_debe" filled label="Cuenta Debe" dense /></div>
-                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_haber" filled label="Cuenta Haber" dense /></div>
+                          <div class="col-12 col-md-6">
+                            <q-select
+                              v-model="formPartida.cuenta_debe"
+                              use-input
+                              fill-input
+                              hide-selected
+                              input-debounce="0"
+                              label="Cuenta Debe"
+                              :options="optionsDebe"
+                              @filter="filterFnDebe"
+                              filled dense
+                              :option-label="(opt) => opt.codigo + ' - ' + opt.nombre"
+                              emit-value
+                              map-options
+                              :option-value="(opt) => opt.codigo + ' - ' + opt.nombre"
+                              color="brown"
+                            >
+                              <template v-slot:no-option>
+                                <q-item><q-item-section class="text-grey">No hay resultados</q-item-section></q-item>
+                              </template>
+                              <template v-slot:option="scope">
+                                <q-item v-bind="scope.itemProps">
+                                  <q-item-section>
+                                    <q-item-label>{{ scope.opt.codigo }} - {{ scope.opt.nombre }}</q-item-label>
+                                    <q-item-section side class="text-grey-6" style="font-size: 0.8em">{{ scope.opt.tipo }}</q-item-section>
+                                  </q-item-section>
+                                </q-item>
+                              </template>
+                            </q-select>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <q-select
+                              v-model="formPartida.cuenta_haber"
+                              use-input
+                              fill-input
+                              hide-selected
+                              input-debounce="0"
+                              label="Cuenta Haber"
+                              :options="optionsHaber"
+                              @filter="filterFnHaber"
+                              filled dense
+                              :option-label="(opt) => opt.codigo + ' - ' + opt.nombre"
+                              emit-value
+                              map-options
+                              :option-value="(opt) => opt.codigo + ' - ' + opt.nombre"
+                              color="brown"
+                            >
+                              <template v-slot:no-option>
+                                <q-item><q-item-section class="text-grey">No hay resultados</q-item-section></q-item>
+                              </template>
+                              <template v-slot:option="scope">
+                                <q-item v-bind="scope.itemProps">
+                                  <q-item-section>
+                                    <q-item-label>{{ scope.opt.codigo }} - {{ scope.opt.nombre }}</q-item-label>
+                                    <q-item-section side class="text-grey-6" style="font-size: 0.8em">{{ scope.opt.tipo }}</q-item-section>
+                                  </q-item-section>
+                                </q-item>
+                              </template>
+                            </q-select>
+                          </div>
                         </div>
+
                         <q-input v-model.number="formPartida.monto" filled label="Monto" type="number" prefix="$" class="q-mt-sm" dense />
                         <div class="q-mt-md"><q-btn style="background: var(--primary); color: white;" label="Registrar" type="submit" :loading="loading" /></div>
                       </q-form>
@@ -402,31 +567,47 @@
                         <div class="col"><div class="text-h6 brand-font text-primary">Libro Diario</div></div>
                         <q-btn flat color="primary" icon="refresh" @click="fetchDiario" />
                       </div>
-                      <q-table flat dense :rows="diario" row-key="id" :columns="[
-                        { name:'fecha', label:'Fecha', field:'fecha', sortable:true },
-                        { name:'descripcion', label:'Descripción', field:'descripcion' },
-                        { name:'cuenta_debe', label:'Debe', field:'cuenta_debe' },
-                        { name:'cuenta_haber', label:'Haber', field:'cuenta_haber' },
-                        { name:'monto', label:'Monto', field:'monto', format: (v)=>'$'+Number(v).toFixed(2), align:'right' }
-                      ]" />
+                      <q-table flat dense :rows="diario" row-key="id" :columns="[{ name:'fecha', label:'Fecha', field:'fecha', sortable:true },{ name:'descripcion', label:'Descripción', field:'descripcion' },{ name:'cuenta_debe', label:'Debe', field:'cuenta_debe' },{ name:'cuenta_haber', label:'Haber', field:'cuenta_haber' },{ name:'monto', label:'Monto', field:'monto', format: (v)=>'$'+Number(v).toFixed(2), align:'right' }, { name:'acciones', label:'Acciones', field:'acciones' }]">
+                        <template v-slot:body-cell-acciones="props">
+                          <q-td :props="props">
+                            <q-btn flat dense icon="edit" color="primary" @click="editPartida(props.row)" />
+                          </q-td>
+                        </template>
+                      </q-table>
                     </div>
+
+                    <!-- Dialog para editar partida -->
+                    <q-dialog v-model="showEditPartidaDialog" persistent>
+                      <q-card style="min-width: 400px;">
+                        <q-card-section class="row items-center">
+                          <div class="text-h6">Editar Descripción de Partida</div>
+                          <q-space />
+                          <q-btn icon="close" flat round dense v-close-popup />
+                        </q-card-section>
+                        <q-card-section>
+                          <q-form @submit.prevent="actualizarPartida">
+                            <q-input v-model="formPartidaEdit.fecha" filled label="Fecha" dense class="q-mb-sm" readonly />
+                            <q-input v-model="formPartidaEdit.descripcion" filled label="Descripción" dense class="q-mb-sm" />
+                            <q-input v-model="formPartidaEdit.cuenta_debe" filled label="Cuenta Debe" dense class="q-mb-sm" readonly />
+                            <q-input v-model="formPartidaEdit.cuenta_haber" filled label="Cuenta Haber" dense class="q-mb-sm" readonly />
+                            <q-input v-model="formPartidaEdit.monto" filled label="Monto" dense class="q-mb-sm" readonly />
+                            <div class="q-mt-md">
+                              <q-btn type="submit" style="background: var(--primary); color: white;" label="Actualizar" :loading="loading" />
+                              <q-btn flat label="Cancelar" v-close-popup class="q-ml-sm" />
+                            </div>
+                          </q-form>
+                        </q-card-section>
+                      </q-card>
+                    </q-dialog>
                   </div>
 
                   <div v-show="page === 'mayor'">
                     <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-sm">
-                        <div class="col">
-                          <div class="text-h6 brand-font text-primary">📊 Libro Mayor</div>
-                          <div class="text-subtitle2 text-grey-7">Saldos consolidados</div>
-                        </div>
+                        <div class="col"><div class="text-h6 brand-font text-primary">📊 Libro Mayor</div></div>
                         <q-btn flat color="primary" icon="refresh" @click="fetchMayor" />
                       </div>
-                      <q-table flat dense :rows="mayor" row-key="cuenta" :columns="[
-                        { name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },
-                        { name:'debe', label:'Debe', field:'debe', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },
-                        { name:'haber', label:'Haber', field:'haber', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },
-                        { name:'saldo', label:'Saldo', field:'saldo', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }
-                      ]" :loading="loading" />
+                      <q-table flat dense :rows="mayor" row-key="cuenta" :columns="[{ name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },{ name:'debe', label:'Debe', field:'debe', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },{ name:'haber', label:'Haber', field:'haber', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },{ name:'saldo', label:'Saldo', field:'saldo', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }]" :loading="loading" />
                     </div>
                   </div>
 
@@ -456,12 +637,7 @@
                         <div class="col"><div class="text-h5 brand-font text-primary">⚖️ Balanza de Comprobación</div></div>
                         <q-btn flat color="primary" icon="refresh" @click="fetchBalanza" />
                       </div>
-                      <q-table v-if="balanza" flat dense :rows="balanza.cuentas" row-key="cuenta" :columns="[
-                        { name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },
-                        { name:'debe', label:'Debe', field:'debe', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },
-                        { name:'haber', label:'Haber', field:'haber', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },
-                        { name:'saldo', label:'Saldo', field:'saldo', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }
-                      ]" :loading="loading">
+                      <q-table v-if="balanza" flat dense :rows="balanza.cuentas" row-key="cuenta" :columns="[{ name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },{ name:'debe', label:'Debe', field:'debe', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },{ name:'haber', label:'Haber', field:'haber', format:(v)=>'$'+Number(v).toFixed(2), align:'right' },{ name:'saldo', label:'Saldo', field:'saldo', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }]" :loading="loading">
                         <template v-slot:bottom>
                           <div class="full-width q-pa-md" style="background: #FFFCE0; border-top: 2px solid var(--secondary);">
                             <div class="row q-gutter-md text-h6 text-brown">
@@ -509,6 +685,26 @@
                     </div>
                   </div>
 
+                  <div v-show="page === 'menu-restaurante'">
+                    <div class="rest-card q-pa-md">
+                      <div class="row items-center q-mb-sm">
+                        <div class="col"><div class="text-h6 text-primary brand-font">Menú del Restaurante</div></div>
+                        <q-btn flat color="primary" icon="refresh" @click="fetchMenuRestaurante" />
+                      </div>
+                      <q-table dense flat :rows="menuRestaurante" :columns="[{ name: 'id', label: 'ID', field: 'id', sortable: true },{ name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },{ name: 'categoria', label: 'Categoría', field: 'categoria', sortable: true },{ name: 'precio', label: 'Precio', field: 'precio', format: (v)=>'$'+Number(v).toFixed(2), sortable: true }]" row-key="id" :loading="loading" />
+                    </div>
+                  </div>
+
+                  <div v-show="page === 'lista-facturas'">
+                    <div class="rest-card q-pa-md">
+                      <div class="row items-center q-mb-sm">
+                        <div class="col"><div class="text-h6 text-primary brand-font">Todas las Facturas</div></div>
+                        <q-btn flat color="primary" icon="refresh" @click="fetchListaFacturas" />
+                      </div>
+                      <q-table dense flat :rows="listaFacturas" :columns="[{ name: 'id', label: 'ID', field: 'id', sortable: true },{ name: 'fecha', label: 'Fecha', field: 'fecha', sortable: true },{ name: 'cliente', label: 'Cliente', field: 'cliente', sortable: true },{ name: 'monto', label: 'Monto', field: 'monto', format: (v)=>'$'+Number(v).toFixed(2), sortable: true }]" row-key="id" :loading="loading" />
+                    </div>
+                  </div>
+
                   <div v-show="page === 'facturacion'">
                     <div class="rest-card q-pa-md q-mb-md">
                       <div class="text-h6 brand-font text-primary q-mb-md">📄 Nuevo Pedido / Factura</div>
@@ -532,6 +728,8 @@
                               <circle cx="50" cy="50" r="48" stroke="#A63333" stroke-width="4" fill="#FFFCE0"/>
                               <path d="M50 20 C35 20 30 35 30 45 L70 45 C70 35 65 20 50 20Z" fill="#A63333"/>
                               <path d="M40 15 Q45 5 50 15 T60 15" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+                              <path d="M40 55 L40 75" stroke="#A63333" stroke-width="3" stroke-linecap="round"/>
+                              <path d="M60 55 L60 75" stroke="#A63333" stroke-width="3" stroke-linecap="round"/>
                             </svg>
                           </div>
                           <div>
@@ -546,7 +744,6 @@
                         </div>
                       </div>
                       <q-separator class="q-my-lg" style="background: #D4AF37; height: 3px;" />
-                      
                       <div class="row q-col-gutter-lg q-mb-xl">
                         <div class="col-6">
                            <div class="text-h6 text-primary q-mb-sm" style="border-bottom: 1px solid #E0C080;">Establecimiento</div>
@@ -558,7 +755,6 @@
                           <div class="text-brown-9">NIT/DUI: {{ facturaPreview.nit || 'C.F.' }}</div>
                         </div>
                       </div>
-
                       <table style="width: 100%; border-collapse: separate; border: 2px solid #D4AF37; border-radius: 10px; margin-bottom: 30px;">
                         <thead style="background: #A63333; color: #FFF8E7;">
                           <tr>
@@ -577,7 +773,6 @@
                           </tr>
                         </tbody>
                       </table>
-
                       <div class="row justify-end q-mb-xl">
                         <div class="col-5">
                           <q-card flat class="q-pa-md" style="background: #FEF5E7; border: 2px solid #D4AF37;">
@@ -585,7 +780,6 @@
                           </q-card>
                         </div>
                       </div>
-
                       <div class="text-center no-print q-mb-lg">
                         <q-btn push icon="print" label="Imprimir Cuenta" style="background: #A63333; color: white;" @click="imprimirFactura" />
                       </div>

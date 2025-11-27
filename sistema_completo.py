@@ -138,6 +138,18 @@ class LibroDiario:
         print("="*60)
         return partidas
     
+    def actualizar_partida(self, partida_id, descripcion):
+        """Actualiza solo la descripción de una partida"""
+        try:
+            self.db.ejecutar_consulta(
+                "UPDATE libro_diario SET descripcion = ? WHERE id = ?",
+                (descripcion, partida_id)
+            )
+            print(f"✅ Partida {partida_id} actualizada exitosamente!")
+        except Exception as e:
+            print(f"❌ Error al actualizar partida: {e}")
+            raise
+
     def crear_partida_ajuste(self, fecha, descripcion, cuenta_debe, cuenta_haber, monto):
         self.registrar_partida(fecha, descripcion, cuenta_debe, cuenta_haber, monto, "ajuste")
         print("✅ Partida de ajuste creada exitosamente!")

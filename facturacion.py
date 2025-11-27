@@ -97,3 +97,36 @@ class Facturacion:
         for factura in facturas:
             print(f"#{factura[0]} - {factura[2]} - {factura[1]} - ${factura[3]:.2f}")
         return facturas
+
+    def generar_reporte_ventas_diarias(self):
+        fecha_hoy = datetime.now().strftime('%Y-%m-%d')
+        ventas = self.db.obtener_datos(
+            "SELECT * FROM facturas WHERE date(fecha) = ?",
+            (fecha_hoy,)
+        )
+        
+        total_ventas = 0
+        print(f"\n--- REPORTE DE VENTAS DIARIAS ({fecha_hoy}) ---")
+        for venta in ventas:
+            print(f"#{venta[0]} - {venta[2]} - {venta[1]} - ${venta[3]:.2f}")
+            total_ventas += venta[3]
+        
+        print(f"\nTotal de Ventas de Hoy: ${total_ventas:.2f}")
+
+    def exportar_factura_txt(self, factura_id):
+        factura = self.db.obtener_datos('SELECT * FROM facturas WHERE id = ?', (factura_id,))[0]
+        detalles = self.db.obtener_datos('SELECT * FROM productos_factura WHERE factura_id = ?', (factura_id,))
+        
+        nombre_archivo = f"factura_{factura_id}.txt"
+        with open(nombre_archivo, 'w') as f:
+            f.write(f"--- FACTURA #{factura[0]} ---\n")
+            f.write(f"Cliente: {factura[2]}\n")
+            f.write(f"Fecha: {factura[1]}\n")
+            f.write(f"Total: ${factura[3]:.2f}\n")
+            f.write(f"Descripción: {factura[4]}\n")
+            f.write("\nDetalles del Pedido:\n")
+            for detalle in detalles:
+                f.write(f"- {detalle[3]} x {detalle[4]} = ${detalle[6]:.2f}\n")
+            f.write(f"\nTotal: ${factura[3]:.2f}\n")
+        
+        print(f"Factura exportada a {nombre_archivo}")

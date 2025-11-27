@@ -34,6 +34,8 @@ except Exception:
     # Como fallback, intentar importar por nombre absoluto
     from . import sistema_completo as sc  # type: ignore
 
+from facturacion import Facturacion
+
 
 def _base_path() -> str:
     """Devuelve la ruta base donde viven los assets `web/`.
@@ -97,9 +99,21 @@ def create_app() -> Flask:
 
     @app.get("/api/mayor")
     def api_mayor():
-        """Libro Mayor: saldos debe/haber por cuenta"""
+        """Libro Mayor: saldos debe/haber por cuenta MAYOR (solo niveles 1 y 2)"""
         mayor = sc.Mayorizacion()
         saldos = mayor.calcular_saldos_cuentas()
+
+        # Filtrar solo cuentas mayores (nivel 1 y 2)
+        catalogo = sc.CatalogoCuentas()
+        cuentas_mayores = {}
+        for cuenta, mov in saldos.items():
+            # Obtener nivel de la cuenta
+            nivel_info = catalogo.db.obtener_datos(
+                "SELECT nivel FROM catalogo_cuentas WHERE codigo = ?", (cuenta,)
+            )
+            if nivel_info and nivel_info[0][0] <= 2:  # Solo niveles 1 y 2
+                cuentas_mayores[cuenta] = mov
+
         data = [
             {
                 "cuenta": cuenta,
@@ -107,7 +121,7 @@ def create_app() -> Flask:
                 "haber": mov["haber"],
                 "saldo": mov["debe"] - mov["haber"],
             }
-            for cuenta, mov in saldos.items()
+            for cuenta, mov in cuentas_mayores.items()
         ]
         return jsonify(data)
 
@@ -262,6 +276,75 @@ def create_app() -> Flask:
             for v in ventas
         ]
         return jsonify(data)
+
+    @app.get("/api/menu-restaurante")
+    def api_menu_restaurante():
+        fact = Facturacion()
+        menu = fact.mostrar_menu_restaurante()
+        data = [
+            {
+                "id": m[0],
+                "nombre": m[1],
+                "categoria": m[2],
+                "precio": m[3],
+                "descripcion": m[4],
+            }
+            for m in menu
+        ]
+        return jsonify(data)
+
+    @app.get("/api/facturas")
+    def api_listar_facturas():
+        fact = Facturacion()
+        facturas = fact.listar_facturas()
+        data = [
+            {
+                "id": f[0],
+                "fecha": f[1],
+                "cliente": f[2],
+                "monto": f[3],
+                "descripcion": f[4],
+            }
+            for f in facturas
+        ]
+        return jsonify(data)
+
+    @app.post("/api/catalogo")
+    def api_agregar_cuenta():
+        data = request.get_json()
+        cat = sc.CatalogoCuentas()
+        cat.agregar_cuenta(
+            codigo=data["codigo"],
+            nombre=data["nombre"],
+            tipo=data["tipo"],
+            nivel=int(data["nivel"])
+        )
+        return {"ok": True, "message": "Cuenta agregada"}
+
+    @app.put("/api/catalogo/<codigo>")
+    def api_editar_cuenta(codigo):
+        data = request.get_json()
+        cat = sc.CatalogoCuentas()
+        cat.actualizar_cuenta(
+            codigo=codigo,
+            nombre=data["nombre"],
+            tipo=data["tipo"],
+            nivel=int(data["nivel"])
+        )
+        return {"ok": True, "message": "Cuenta actualizada"}
+
+    @app.delete("/api/catalogo/<codigo>")
+    def api_eliminar_cuenta(codigo):
+        cat = sc.CatalogoCuentas()
+        cat.eliminar_cuenta(codigo)
+        return {"ok": True, "message": "Cuenta eliminada"}
+
+    @app.put("/api/diario/<int:partida_id>")
+    def api_editar_partida(partida_id):
+        data = request.get_json()
+        diario = sc.LibroDiario()
+        diario.actualizar_partida(partida_id, data["descripcion"])
+        return {"ok": True, "message": "Partida actualizada"}
 
     return app
 

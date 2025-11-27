@@ -3,6 +3,9 @@ from diario import Diario
 from mayor import Mayor
 from estados_financieros import EstadosFinancieros
 from facturacion import Facturacion
+from manual_cuentas import ManualCuentas
+from balanza import Balanza
+from balance_inicial import BalanceInicial
 
 class SistemaContable:
     def __init__(self):
@@ -11,30 +14,45 @@ class SistemaContable:
         self.mayor = Mayor()
         self.estados = EstadosFinancieros()
         self.facturacion = Facturacion()
+        self.manual = ManualCuentas()
+        self.balanza = Balanza()
+        self.balance_inicial = BalanceInicial()
 
     def menu_principal(self):
         while True:
             print("\n=== SISTEMA CONTABLE PARA RESTAURANTE ===")
             print("1. Gestión de Catálogo de Cuentas")
-            print("2. Registro en Libro Diario")
-            print("3. Consulta de Libro Mayor")
-            print("4. Estados Financieros")
-            print("5. Facturación y Pedidos")
-            print("6. Salir")
+            print("2. Gestión de Manual de Cuentas")
+            print("3. Balance Inicial")
+            print("4. Registro en Libro Diario")
+            print("5. Partidas de Ajuste")
+            print("6. Consulta de Libro Mayor")
+            print("7. Balanza de Comprobación")
+            print("8. Estados Financieros")
+            print("9. Facturación y Pedidos")
+            print("10. Salir")
 
             opcion = input("Seleccione una opción: ")
 
             if opcion == '1':
                 self.menu_catalogo()
             elif opcion == '2':
-                self.menu_diario()
+                self.menu_manual()
             elif opcion == '3':
-                self.menu_mayor()
+                self.balance_inicial.registrar_balance_inicial()
             elif opcion == '4':
-                self.menu_estados()
+                self.menu_diario()
             elif opcion == '5':
-                self.menu_facturacion()
+                self.menu_ajustes()
             elif opcion == '6':
+                self.menu_mayor()
+            elif opcion == '7':
+                self.balanza.mostrar_balanza()
+            elif opcion == '8':
+                self.menu_estados()
+            elif opcion == '9':
+                self.menu_facturacion()
+            elif opcion == '10':
                 break
             else:
                 print("Opción no válida.")
@@ -44,7 +62,8 @@ class SistemaContable:
             print("\n--- GESTIÓN DE CATÁLOGO DE CUENTAS ---")
             print("1. Mostrar Catálogo")
             print("2. Agregar Cuenta")
-            print("3. Volver al Menú Principal")
+            print("3. Buscar Cuenta por Código")
+            print("4. Volver al Menú Principal")
 
             opcion = input("Seleccione una opción: ")
 
@@ -57,6 +76,34 @@ class SistemaContable:
                 nivel = int(input("Nivel: "))
                 self.catalogo.agregar_cuenta(codigo, nombre, tipo, nivel)
                 print("Cuenta agregada exitosamente.")
+            elif opcion == '3':
+                codigo = input("Código de la cuenta a buscar: ")
+                cuenta = self.catalogo.obtener_cuenta(codigo)
+                if cuenta:
+                    print(f"Cuenta encontrada: {cuenta[0][0]} - {cuenta[0][1]} ({cuenta[0][2]})")
+                else:
+                    print("Cuenta no encontrada.")
+            elif opcion == '4':
+                break
+            else:
+                print("Opción no válida.")
+
+    def menu_manual(self):
+        while True:
+            print("\n--- GESTIÓN DE MANUAL DE CUENTAS ---")
+            print("1. Mostrar Manual")
+            print("2. Agregar Descripción a Cuenta")
+            print("3. Volver al Menú Principal")
+
+            opcion = input("Seleccione una opción: ")
+
+            if opcion == '1':
+                self.manual.mostrar_manual()
+            elif opcion == '2':
+                codigo = input("Código de la cuenta: ")
+                descripcion = input("Descripción de la cuenta: ")
+                self.manual.agregar_descripcion(codigo, descripcion)
+                print("Descripción agregada exitosamente.")
             elif opcion == '3':
                 break
             else:
@@ -74,14 +121,42 @@ class SistemaContable:
             if opcion == '1':
                 fecha = input("Fecha (YYYY-MM-DD): ")
                 descripcion = input("Descripción: ")
+                self.catalogo.mostrar_catalogo()
                 cuenta_debe = input("Cuenta Débito: ")
                 cuenta_haber = input("Cuenta Crédito: ")
                 monto = float(input("Monto: "))
                 tipo = input("Tipo (venta/compra/etc.): ")
-                self.diario.registrar_asiento(fecha, descripcion, cuenta_debe, cuenta_haber, monto, tipo)
-                print("Asiento registrado exitosamente.")
+                if self.diario.registrar_asiento(fecha, descripcion, cuenta_debe, cuenta_haber, monto, tipo):
+                    print("Asiento registrado exitosamente.")
             elif opcion == '2':
                 self.diario.mostrar_asientos()
+            elif opcion == '3':
+                break
+            else:
+                print("Opción no válida.")
+
+    def menu_ajustes(self):
+        while True:
+            print("\n--- PARTIDAS DE AJUSTE ---")
+            print("1. Registrar Partida de Ajuste")
+            print("2. Ver Partidas de Ajuste")
+            print("3. Volver al Menú Principal")
+
+            opcion = input("Seleccione una opción: ")
+
+            if opcion == '1':
+                fecha = input("Fecha (YYYY-MM-DD): ")
+                descripcion = input("Descripción: ")
+                self.catalogo.mostrar_catalogo()
+                cuenta_debe = input("Cuenta Débito: ")
+                cuenta_haber = input("Cuenta Crédito: ")
+                monto = float(input("Monto: "))
+                if self.diario.registrar_ajuste(fecha, descripcion, cuenta_debe, cuenta_haber, monto):
+                    print("Partida de ajuste registrada exitosamente.")
+            elif opcion == '2':
+                ajustes = self.diario.db.obtener_datos("SELECT * FROM libro_diario WHERE tipo = 'ajuste'")
+                for ajuste in ajustes:
+                    print(f"ID: {ajuste[0]} | Fecha: {ajuste[1]} | Desc: {ajuste[2]} | Debe: {ajuste[3]} | Haber: {ajuste[4]} | Monto: ${ajuste[5]}")
             elif opcion == '3':
                 break
             else:
@@ -90,15 +165,19 @@ class SistemaContable:
     def menu_mayor(self):
         while True:
             print("\n--- CONSULTA DE LIBRO MAYOR ---")
-            print("1. Mostrar Mayor por Cuenta")
-            print("2. Volver al Menú Principal")
+            print("1. Mostrar Mayor por Cuenta Específica")
+            print("2. Mostrar Mayor General")
+            print("3. Volver al Menú Principal")
 
             opcion = input("Seleccione una opción: ")
 
             if opcion == '1':
-                cuenta = input("Cuenta: ")
-                self.mayor.mostrar_mayor_cuenta(cuenta)
+                self.catalogo.mostrar_catalogo()
+                cuenta = input("Código de la cuenta: ")
+                self.mayor.obtener_mayor_por_cuenta(cuenta)
             elif opcion == '2':
+                self.mayor.mostrar_mayor_general()
+            elif opcion == '3':
                 break
             else:
                 print("Opción no válida.")

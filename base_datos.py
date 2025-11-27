@@ -82,17 +82,25 @@ class BaseDatos:
                 FOREIGN KEY (factura_id) REFERENCES facturas (id)
             )
         ''')
-        
+       
+        # Tabla para el manual de cuentas
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS manual_cuentas (
+                codigo TEXT PRIMARY KEY,
+                descripcion TEXT NOT NULL,
+                FOREIGN KEY (codigo) REFERENCES catalogo_cuentas (codigo)
+            )
+        ''')
+       
         self.conn.commit()
-    
+   
     def ejecutar_consulta(self, consulta, parametros=()):
         cursor = self.conn.cursor()
         cursor.execute(consulta, parametros)
         self.conn.commit()
         return cursor
-    
+  
     def obtener_datos(self, consulta, parametros=()):
         cursor = self.conn.cursor()
         cursor.execute(consulta, parametros)
         return cursor.fetchall()
-    
