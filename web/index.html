@@ -1,395 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Sistema Contable</title>
-  <!-- Quasar (CSS) -->
-  <link href="./vendor/quasar.prod.css" rel="stylesheet">
-    <!-- Iconos -->
-    <link href="https://cdn.jsdelivr.net/npm/@quasar/extras/material-icons/material-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Nota: Las librerías JS (Vue/Quasar/Axios) se cargan al final del body para evitar errores de DOM -->
-    <style>
-      :root { --bg: #0f172a; --card: #111827; --accent: #06b6d4; }
-      body { 
-        background: linear-gradient(180deg, #0b1020 0%, #0f172a 100%); 
-        font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        color: #e5e7eb;
-      }
-      .glass-card { 
-        background: rgba(17, 24, 39, 0.75); 
-        backdrop-filter: blur(10px); 
-        border: 1px solid rgba(255,255,255,0.05); 
-        border-radius: 16px; 
-      }
-      .soft { box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-      
-      /* Gradiente con soporte y fallback */
-      .brand-grad {
-        background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 50%, #a78bfa 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        color: transparent;
-        -webkit-text-fill-color: transparent;
-      }
-      
-      .q-header { 
-        background: rgba(17, 24, 39, 0.7) !important; 
-        backdrop-filter: blur(8px); 
-        border-bottom: 1px solid rgba(255,255,255,0.06); 
-      }
-      .q-drawer { 
-        background: rgba(17, 24, 39, 0.8); 
-        backdrop-filter: blur(10px); 
-      }
-      
-      /* Mejoras de visibilidad para inputs y tablas */
-      .q-field--filled .q-field__control {
-        background: rgba(30, 41, 59, 0.6) !important;
-        color: #e5e7eb !important;
-      }
-      .q-field--filled .q-field__control:before {
-        border-bottom: 1px solid rgba(255,255,255,0.2) !important;
-      }
-      .q-field--filled .q-field__control:hover:before {
-        border-bottom: 1px solid rgba(6, 182, 212, 0.5) !important;
-      }
-      .q-field--filled.q-field--focused .q-field__control:before {
-        border-bottom: 2px solid #06b6d4 !important;
-      }
-      .q-field__label, .q-field__native, .q-field__prefix {
-        color: #d1d5db !important;
-      }
-      /* Tablas con mejor contraste */
-      .q-table {
-        background: rgba(15, 23, 42, 0.8) !important;
-        color: #f3f4f6 !important;
-      }
-      .q-table thead tr, .q-table tbody td {
-        border-color: rgba(255,255,255,0.15) !important;
-      }
-      .q-table th {
-        color: #22d3ee !important;
-        font-weight: 700 !important;
-        background: rgba(6, 182, 212, 0.15) !important;
-        font-size: 0.85rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .q-table tbody td {
-        color: #e5e7eb !important;
-        padding: 12px 16px !important;
-      }
-      .q-table tbody tr {
-        border-bottom: 1px solid rgba(255,255,255,0.08) !important;
-      }
-      .q-table tbody tr:hover {
-        background: rgba(6, 182, 212, 0.12) !important;
-      }
-      
-      /* Cards y componentes oscuros */
-      .q-card, .q-item {
-        color: #e5e7eb !important;
-      }
-      .q-btn {
-        font-weight: 600 !important;
-      }
-      
-      /* Mejoras de separadores y bordes */
-      .q-separator {
-        background: rgba(255,255,255,0.1) !important;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>El Buen Gusto - Sistema de Gestión</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.prod.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@quasar/extras/material-icons/material-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <!-- Librerías JS locales (orden importa) -->
-    <script src="./vendor/vue.global.prod.js"></script>
-    <script src="./vendor/quasar.umd.prod.js"></script>
-    <script src="./vendor/axios.min.js"></script>
+  <style>
+    /* VARIABLES DE TEMA RESTAURANTE */
+    :root { 
+      --bg-body: #FFF8E7; /* Crema Fondo */
+      --primary: #A63333; /* Vino Tinto */
+      --secondary: #D4AF37; /* Dorado */
+      --text-main: #3E2723; /* Café Oscuro */
+      --card-bg: #FFFFFF;
+    }
 
-    <script>
-      // Asegura que el DOM está listo antes de montar
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init)
-      } else {
-        init()
-      }
+    body { 
+      background-color: var(--bg-body);
+      font-family: 'Lato', sans-serif;
+      color: var(--text-main);
+      margin: 0; padding: 0; min-height: 100vh;
+    }
 
-      function init () {
-      const { createApp, ref, reactive, onMounted } = Vue
-      // En UMD, `Quasar` ya es global; sólo extraemos composables
-      const { useQuasar } = Quasar
+    /* Títulos elegantes */
+    h1, h2, h3, h4, h5, h6, .brand-font {
+      font-family: 'Playfair Display', serif;
+    }
 
-      const App = {
-        setup () {
-          const $q = useQuasar()
-          const leftDrawerOpen = ref(true)
-          const page = ref('catalogo')
-          const loading = ref(false)
-          const error = ref(null)
+    /* Reemplazo de Glassmorphism por Tarjetas de Restaurante */
+    .rest-card { 
+      background: #FFFFFF; 
+      border: 1px solid rgba(212, 175, 55, 0.3); /* Borde dorado sutil */
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(62, 39, 35, 0.08);
+    }
 
-          const catalogo = ref([])
-          const diario = ref([])
-          const ventas = ref([])
-          const mayor = ref([])
-          const balanza = ref(null)
-          const balanceGeneral = ref(null)
-          
-          // Formularios reactivos (v-model)
-          const formPartida = reactive({
-            fecha: new Date().toISOString().slice(0,10),
-            descripcion: '',
-            cuenta_debe: '',
-            cuenta_haber: '',
-            monto: null
-          })
+    /* Estilos de Login */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      /* Gradiente elegante en lugar del oscuro anterior */
+      background: linear-gradient(135deg, #3E2723 0%, #5D4037 100%); 
+    }
+    .login-card-width { max-width: 450px; width: 100%; }
 
-          const formAjuste = reactive({
-            fecha: new Date().toISOString().slice(0,10),
-            descripcion: '',
-            cuenta_debe: '',
-            cuenta_haber: '',
-            monto: null
-          })
+    /* Logo Circular Estilo Restaurante */
+    .logo-circle {
+      width: 90px; height: 90px;
+      background: #FFFCE0;
+      border: 3px solid var(--secondary);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
 
-          const formFactura = reactive({
-            cliente: '',
-            nit: '',
-            direccion: '',
-            descripcion: '',
-            cantidad: 1,
-            precio_unitario: null,
-            monto: null
-          })
+    /* Quasar Overrides para el tema */
+    .q-header { 
+      background: linear-gradient(to right, #8B0000, #A63333) !important;
+      border-bottom: 4px solid var(--secondary);
+    }
+    .q-footer {
+      background: #2D1B18 !important;
+      border-top: 1px solid var(--secondary);
+    }
+    
+    /* Inputs claros */
+    .q-field--filled .q-field__control {
+      background: #F5F5F5 !important;
+      color: #3E2723 !important;
+    }
+    .q-field__label { color: #5D4037 !important; }
 
-          const facturaPreview = ref(null)
+    /* Tablas elegantes */
+    .q-table {
+      background: #FFFFFF !important;
+      color: #3E2723 !important;
+    }
+    .q-table th {
+      color: var(--primary) !important;
+      font-weight: 700 !important;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--secondary) !important;
+    }
+    .q-table tbody tr:hover {
+      background: #FFFCE0 !important; /* Hover crema */
+    }
+    
+    /* Pestañas */
+    .q-tab__label { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
 
-          const fetchCatalogo = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/catalogo')
-              catalogo.value = data
-            } catch (e) { error.value = 'No se pudo cargar el catálogo' }
-            finally { loading.value = false }
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.umd.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+
+  <script>
+    const { createApp, ref, reactive, onMounted } = Vue
+    const { useQuasar } = Quasar
+
+    const App = {
+      setup () {
+        const $q = useQuasar()
+
+        // --- LÓGICA ORIGINAL DEL USUARIO (MANTENIDA INTACTA) ---
+        const isAuthenticated = ref(false)
+        const currentUser = ref(null)
+        const authTab = ref('login')
+        const loginLoading = ref(false)
+        const loginForm = reactive({ username: '', password: '' })
+        const registerForm = reactive({ name: '', username: '', password: '', role: 'user' })
+        const users = ref([])
+
+        onMounted(() => {
+          const storedUsers = localStorage.getItem('contabilidad_users')
+          if (storedUsers) {
+            users.value = JSON.parse(storedUsers)
+          } else {
+            users.value = [
+              { id: 1, username: 'admin', password: '123', name: 'Administrador', role: 'admin' },
+              { id: 2, username: 'contador', password: '123', name: 'Contador General', role: 'accountant' }
+            ]
+            localStorage.setItem('contabilidad_users', JSON.stringify(users.value))
           }
+          loadAppData()
+        })
 
-          const fetchDiario = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/diario')
-              diario.value = data
-            } catch (e) { error.value = 'No se pudo cargar el diario' }
-            finally { loading.value = false }
+        const handleLogin = async () => {
+          loginLoading.value = true
+          await new Promise(resolve => setTimeout(resolve, 800))
+          const user = users.value.find(u => u.username === loginForm.username && u.password === loginForm.password)
+          if (user) {
+            isAuthenticated.value = true
+            currentUser.value = { ...user }
+            $q.notify({ type: 'positive', message: `¡Bienvenido ${user.name}!`, icon: 'restaurant', color: 'green-8' })
+          } else {
+            $q.notify({ type: 'negative', message: 'Credenciales incorrectas', icon: 'error', color: 'red-9' })
           }
+          loginLoading.value = false
+        }
 
-          const fetchVentas = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/ventas')
-              ventas.value = data
-            } catch (e) { error.value = 'No se pudo cargar ventas' }
-            finally { loading.value = false }
+        const handleRegister = async () => {
+          if (!registerForm.name || !registerForm.username || !registerForm.password) {
+            $q.notify({ type: 'warning', message: 'Completa todos los campos', color: 'orange-8' })
+            return
           }
-
-          const fetchMayor = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/mayor')
-              mayor.value = data
-            } catch (e) { error.value = 'No se pudo cargar el mayor' }
-            finally { loading.value = false }
+          loginLoading.value = true
+          await new Promise(resolve => setTimeout(resolve, 800))
+          if (users.value.find(u => u.username === registerForm.username)) {
+            $q.notify({ type: 'negative', message: 'El usuario ya existe', color: 'red-9' })
+            loginLoading.value = false; return
           }
+          const newUser = { id: Date.now(), name: registerForm.name, username: registerForm.username, password: registerForm.password, role: 'user' }
+          users.value.push(newUser)
+          localStorage.setItem('contabilidad_users', JSON.stringify(users.value))
+          $q.notify({ type: 'positive', message: 'Registro exitoso. Recargando...', icon: 'save', timeout: 1500, color: 'green-8' })
+          setTimeout(() => { window.location.reload() }, 1500)
+        }
 
-          const fetchBalanza = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/balanza')
-              balanza.value = data
-            } catch (e) { error.value = 'No se pudo cargar la balanza' }
-            finally { loading.value = false }
+        const handleLogout = () => {
+          $q.dialog({ title: 'Cerrar sesión', message: '¿Estás seguro que deseas salir?', cancel: true, persistent: true, color: 'brown' })
+            .onOk(() => { isAuthenticated.value = false; currentUser.value = null; loginForm.username = ''; loginForm.password = ''; $q.notify({ type: 'info', message: 'Sesión cerrada', color: 'brown' }) })
+        }
+
+        // --- SISTEMA CONTABLE ---
+        const page = ref('catalogo')
+        const loading = ref(false)
+        const error = ref(null)
+
+        const catalogo = ref([]); const diario = ref([]); const ventas = ref([])
+        const mayor = ref([]); const balanza = ref(null); const balanceGeneral = ref(null)
+        
+        const formPartida = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: '', cuenta_haber: '', monto: null })
+        const formAjuste = reactive({ fecha: new Date().toISOString().slice(0,10), descripcion: '', cuenta_debe: '', cuenta_haber: '', monto: null })
+        const formFactura = reactive({ cliente: '', nit: '', direccion: '', descripcion: '', cantidad: 1, precio_unitario: null, monto: null })
+        const facturaPreview = ref(null)
+
+        const loadAppData = () => { fetchCatalogo(); fetchDiario(); fetchVentas(); fetchMayor(); fetchBalanza(); fetchBalanceGeneral(); }
+
+        const fetchCatalogo = async () => { loading.value = true; error.value = null; try { const { data } = await axios.get('/api/catalogo'); catalogo.value = data } catch (e) { error.value = 'No se pudo cargar el catálogo' } finally { loading.value = false } }
+        const fetchDiario = async () => { try { const { data } = await axios.get('/api/diario'); diario.value = data } catch (e) {} }
+        const fetchVentas = async () => { try { const { data } = await axios.get('/api/ventas'); ventas.value = data } catch (e) {} }
+        const fetchMayor = async () => { try { const { data } = await axios.get('/api/mayor'); mayor.value = data } catch (e) {} }
+        const fetchBalanza = async () => { try { const { data } = await axios.get('/api/balanza'); balanza.value = data } catch (e) {} }
+        const fetchBalanceGeneral = async () => { try { const { data } = await axios.get('/api/balance-general'); balanceGeneral.value = data } catch (e) {} }
+
+        const registrarPartida = async () => {
+          loading.value = true; error.value = null
+          try {
+            const payload = { ...formPartida, creado_por: currentUser.value.username, usuario_id: currentUser.value.id }
+            await axios.post('/api/partida', payload)
+            $q.notify({ type: 'positive', message: 'Partida registrada', color: 'green-8' })
+            formPartida.descripcion = ''; formPartida.cuenta_debe = ''; formPartida.cuenta_haber = ''; formPartida.monto = null
+            fetchDiario()
+          } catch (e) { error.value = 'No se pudo registrar (Sin conexión al servidor)' } finally { loading.value = false }
+        }
+
+        const crearFactura = async() => {
+          loading.value = true; error.value = null
+          try {
+            const monto = (formFactura.cantidad || 1) * (formFactura.precio_unitario || 0)
+            const payload = { ...formFactura, monto: monto, vendedor: currentUser.value.name }
+            const { data } = await axios.post('/api/factura', payload)
+            $q.notify({ type: 'positive', message: 'Factura creada exitosamente', color: 'green-8' })
+            facturaPreview.value = { ...payload, id: data.id || 'DRAFT-' + Date.now(), fecha: new Date().toLocaleDateString('es-SV') }
+            formFactura.cliente = ''; formFactura.nit = ''; formFactura.direccion = ''; formFactura.descripcion = ''; formFactura.cantidad = 1; formFactura.precio_unitario = null
+            fetchVentas()
+          } catch (e) {
+            $q.notify({ type: 'warning', message: 'Modo Demo: Factura generada localmente', color: 'orange-8' })
+            const monto = (formFactura.cantidad || 1) * (formFactura.precio_unitario || 0)
+            facturaPreview.value = { ...formFactura, monto: monto, vendedor: currentUser.value.name, id: 'DEMO-' + Date.now(), fecha: new Date().toLocaleDateString('es-SV') }
+          } finally { loading.value = false }
+        }
+
+        const imprimirFactura = () => {
+          const printContent = document.getElementById('factura-preview')
+          if (printContent) {
+            const printWindow = window.open('', '', 'height=600,width=800')
+            printWindow.document.write('<html><head><title>Factura</title></head><body>')
+            printWindow.document.write(printContent.innerHTML)
+            printWindow.document.write('</body></html>')
+            printWindow.document.close(); printWindow.print()
           }
+        }
 
-          const fetchBalanceGeneral = async () => {
-            loading.value = true; error.value = null
-            try {
-              const { data } = await axios.get('/api/balance-general')
-              balanceGeneral.value = data
-            } catch (e) { error.value = 'No se pudo cargar el balance general' }
-            finally { loading.value = false }
-          }
+        const registrarAjuste = async () => {
+          loading.value = true; error.value = null
+          try {
+            const payload = { ...formAjuste, creado_por: currentUser.value.username }
+            await axios.post('/api/partida-ajuste', payload)
+            $q.notify({ type: 'positive', message: 'Partida de ajuste registrada', color: 'green-8' })
+            formAjuste.descripcion = ''; formAjuste.cuenta_debe = ''; formAjuste.cuenta_haber = ''; formAjuste.monto = null
+            fetchDiario()
+          } catch (e) { error.value = 'No se pudo registrar el ajuste' } finally { loading.value = false }
+        }
 
-          const registrarPartida = async () => {
-            loading.value = true; error.value = null
-            try {
-              const payload = { ...formPartida }
-              await axios.post('/api/partida', payload)
-              $q.notify({ type: 'positive', message: 'Partida registrada' })
-              // reset parcial
-              formPartida.descripcion = ''
-              formPartida.cuenta_debe = ''
-              formPartida.cuenta_haber = ''
-              formPartida.monto = null
-              fetchDiario()
-            } catch (e) { error.value = 'No se pudo registrar la partida' }
-            finally { loading.value = false }
-          }
-
-          const crearFactura = async() => {
-            loading.value = true; error.value = null
-            try {
-              const monto = (formFactura.cantidad || 1) * (formFactura.precio_unitario || 0)
-              const payload = { 
-                ...formFactura,
-                monto: monto
-              }
-              const { data } = await axios.post('/api/factura', payload)
-              $q.notify({ type: 'positive', message: 'Factura creada exitosamente' })
+        return { isAuthenticated, currentUser, authTab, loginForm, registerForm, loginLoading, handleLogin, handleRegister, handleLogout, page, loading, error, catalogo, diario, ventas, mayor, balanza, balanceGeneral, formPartida, formAjuste, formFactura, facturaPreview, registrarPartida, registrarAjuste, crearFactura, imprimirFactura, fetchCatalogo, fetchDiario, fetchVentas }
+      },
+      template: `
+        <div v-if="!isAuthenticated" class="login-container">
+          <div class="login-card-width">
+            <div class="rest-card q-pa-lg">
               
-              // Mostrar preview de la factura
-              facturaPreview.value = {
-                ...payload,
-                id: data.id || 'DRAFT',
-                fecha: new Date().toLocaleDateString('es-SV')
-              }
+              <div class="logo-circle">
+                 <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
+                    <path d="M50 20 C35 20 30 35 30 45 L70 45 C70 35 65 20 50 20Z" fill="#A63333"/>
+                    <path d="M40 15 Q45 5 50 15 T60 15" stroke="#D4AF37" stroke-width="5" stroke-linecap="round"/>
+                 </svg>
+              </div>
               
-              // Reset form
-              formFactura.cliente = ''
-              formFactura.nit = ''
-              formFactura.direccion = ''
-              formFactura.descripcion = ''
-              formFactura.cantidad = 1
-              formFactura.precio_unitario = null
-              formFactura.monto = null
+              <div class="text-center q-mb-lg">
+                <div class="text-h4 brand-font text-weight-bold" style="color: #A63333;">El Buen Gusto</div>
+                <div class="text-caption text-brown">Sistema de Gestión</div>
+              </div>
+
+              <q-tabs v-model="authTab" dense class="text-brown" active-color="primary" indicator-color="primary" align="justify" class="q-mb-md">
+                <q-tab name="login" label="Iniciar Sesión" />
+                <q-tab name="register" label="Registrarse" />
+              </q-tabs>
+
+              <q-tab-panels v-model="authTab" animated>
+                <q-tab-panel name="login" class="q-pa-none">
+                  <q-form @submit.prevent="handleLogin">
+                    <q-input v-model="loginForm.username" filled label="Usuario" class="q-mb-md" color="brown">
+                      <template v-slot:prepend><q-icon name="person" color="brown" /></template>
+                    </q-input>
+                    <q-input v-model="loginForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown">
+                      <template v-slot:prepend><q-icon name="lock" color="brown" /></template>
+                    </q-input>
+                    <q-btn type="submit" style="background: #A63333; color: white" label="Entrar" class="full-width" size="lg" :loading="loginLoading" icon="login" />
+                  </q-form>
+                </q-tab-panel>
+
+                <q-tab-panel name="register" class="q-pa-none">
+                  <q-form @submit.prevent="handleRegister">
+                    <q-input v-model="registerForm.name" filled label="Nombre Completo" class="q-mb-sm" color="brown" dense>
+                      <template v-slot:prepend><q-icon name="badge" /></template>
+                    </q-input>
+                    <q-input v-model="registerForm.username" filled label="Usuario deseado" class="q-mb-sm" color="brown" dense>
+                      <template v-slot:prepend><q-icon name="person" /></template>
+                    </q-input>
+                    <q-input v-model="registerForm.password" filled label="Contraseña" type="password" class="q-mb-lg" color="brown" dense>
+                      <template v-slot:prepend><q-icon name="key" /></template>
+                    </q-input>
+                    <q-btn type="submit" style="background: #D4AF37; color: #3E2723" label="Registrar" class="full-width" size="lg" :loading="loginLoading" icon="save" />
+                  </q-form>
+                </q-tab-panel>
+              </q-tab-panels>
+            </div>
+          </div>
+        </div>
+
+        <q-layout v-else view="hHh lpR fFf" style="background-color: var(--bg-body);">
+          <q-header elevated>
+            <q-toolbar class="q-py-sm">
+              <q-avatar square size="42px" class="q-mr-sm bg-white text-primary">
+                 <q-icon name="restaurant" />
+              </q-avatar>
+              <q-toolbar-title class="brand-font text-weight-bold">
+                El Buen Gusto
+                <div class="text-caption text-secondary" style="line-height: 1;">Sistema Contable</div>
+              </q-toolbar-title>
               
-              fetchVentas()
-            } catch (e) { 
-              error.value = 'No se pudo crear la factura'
-              $q.notify({ type: 'negative', message: error.value })
-            }
-            finally { loading.value = false }
-          }
+              <div class="row items-center q-gutter-sm">
+                <div class="text-right gt-xs">
+                  <div class="text-weight-bold">{{ currentUser.name }}</div>
+                  <div class="text-caption text-orange-2">{{ currentUser.role }}</div>
+                </div>
+                <q-btn flat round dense icon="logout" @click="handleLogout" />
+              </div>
+            </q-toolbar>
 
-          const imprimirFactura = () => {
-            const printContent = document.getElementById('factura-preview')
-            if (printContent) {
-              const printWindow = window.open('', '', 'height=600,width=800')
-              printWindow.document.write('<html><head><title>Factura</title>')
-              printWindow.document.write('<style>body{font-family:Arial,sans-serif;padding:20px;}</style>')
-              printWindow.document.write('</head><body>')
-              printWindow.document.write(printContent.innerHTML)
-              printWindow.document.write('</body></html>')
-              printWindow.document.close()
-              printWindow.print()
-            }
-          }
+            <q-tabs v-model="page" align="left" class="bg-white text-brown-10 shadow-2" active-color="primary" indicator-color="primary" dense>
+              <q-tab name="catalogo" label="Catálogo" />
+              <q-tab name="manual" label="Manual" />
+              <q-tab name="diario" label="Diario" />
+              <q-tab name="mayor" label="Mayor" />
+              <q-tab name="ajustes" label="Ajustes" />
+              <q-tab name="balanza" label="Balanza" />
+              <q-tab name="estados-financieros" label="Estados Fin." />
+              <q-tab name="facturacion" icon="receipt" label="Facturación" />
+              <q-tab name="ventas" label="Ventas" />
+            </q-tabs>
+          </q-header>
 
-          const registrarAjuste = async () => {
-            loading.value = true; error.value = null
-            try {
-              const payload = { ...formAjuste }
-              await axios.post('/api/partida-ajuste', payload)
-              $q.notify({ type: 'positive', message: 'Partida de ajuste registrada' })
-              formAjuste.descripcion = ''
-              formAjuste.cuenta_debe = ''
-              formAjuste.cuenta_haber = ''
-              formAjuste.monto = null
-              fetchDiario()
-            } catch (e) { error.value = 'No se pudo registrar el ajuste' }
-            finally { loading.value = false }
-          }
+          <q-page-container>
+            <q-page padding class="q-pb-xl">
+              <div class="row q-col-gutter-md justify-center">
+                <div class="col-12 col-xl-10">
+                  
+                  <q-banner v-if="error" rounded class="bg-red-9 text-white q-mb-md">
+                    <q-icon name="warning" class="q-mr-sm" /> {{ error }}
+                  </q-banner>
 
-          onMounted(() => {
-            fetchCatalogo(); fetchDiario(); fetchVentas(); fetchMayor(); fetchBalanza(); fetchBalanceGeneral()
-          })
-
-          return { 
-            leftDrawerOpen, page, loading, error, 
-            catalogo, diario, ventas, mayor, balanza, balanceGeneral,
-            formPartida, formAjuste, formFactura, facturaPreview,
-            registrarPartida, registrarAjuste, crearFactura, imprimirFactura,
-            fetchCatalogo, fetchDiario, fetchVentas, fetchMayor, fetchBalanza, fetchBalanceGeneral 
-          }
-        },
-        template: `
-          <q-layout view="lHh Lpr lFf">
-            <q-header elevated class="q-px-md">
-              <q-toolbar>
-                <q-btn flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
-                <q-toolbar-title>
-                  <span class="brand-grad">Sistema Contable</span>
-                </q-toolbar-title>
-                <q-btn dense flat icon="refresh" @click="fetchCatalogo(); fetchDiario(); fetchVentas()" />
-              </q-toolbar>
-            </q-header>
-
-            <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-              <q-list padding>
-                <q-item clickable v-ripple @click="page = 'catalogo'">
-                  <q-item-section avatar><q-icon name="list" /></q-item-section>
-                  <q-item-section>1. Catálogo de Cuentas</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'manual'">
-                  <q-item-section avatar><q-icon name="menu_book" /></q-item-section>
-                  <q-item-section>2. Manual de Cuentas</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'diario'">
-                  <q-item-section avatar><q-icon name="book" /></q-item-section>
-                  <q-item-section>3. Libro Diario</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'mayor'">
-                  <q-item-section avatar><q-icon name="account_balance_wallet" /></q-item-section>
-                  <q-item-section>4. Mayorización</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'ajustes'">
-                  <q-item-section avatar><q-icon name="tune" /></q-item-section>
-                  <q-item-section>5. Partidas de Ajuste</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'balanza'">
-                  <q-item-section avatar><q-icon name="balance" /></q-item-section>
-                  <q-item-section>6. Balanza de Comprobación</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'balance-inicial'">
-                  <q-item-section avatar><q-icon name="account_balance" /></q-item-section>
-                  <q-item-section>7. Balance Inicial</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'estados-financieros'">
-                  <q-item-section avatar><q-icon name="assessment" /></q-item-section>
-                  <q-item-section>8. Estados Financieros</q-item-section>
-                </q-item>
-                <q-separator class="q-my-sm" />
-                <q-item clickable v-ripple @click="page = 'facturacion'">
-                  <q-item-section avatar><q-icon name="receipt_long" /></q-item-section>
-                  <q-item-section>9. Facturación Digital</q-item-section>
-                </q-item>
-                <q-item clickable v-ripple @click="page = 'ventas'">
-                  <q-item-section avatar><q-icon name="analytics" /></q-item-section>
-                  <q-item-section>Reporte de Ventas</q-item-section>
-                </q-item>
-              </q-list>
-            </q-drawer>
-
-            <q-page-container>
-              <q-page padding>
-                <div class="row q-col-gutter-md">
-                  <div class="col-12">
-                    <q-banner v-if="error" rounded class="bg-red-9 text-white q-mb-md">
-                      {{ error }}
-                    </q-banner>
-                  </div>
-
-                  <div class="col-12" v-show="page === 'catalogo'">
-                    <div class="glass-card soft q-pa-md">
+                  <div v-show="page === 'catalogo'">
+                    <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-sm">
                         <div class="col">
-                          <div class="text-h6">Catálogo de cuentas</div>
-                          <div class="text-subtitle2 text-grey-5">Estructura y tipos de cuentas</div>
+                          <div class="text-h6 text-primary brand-font">Catálogo de cuentas</div>
                         </div>
-                        <q-btn flat color="white" icon="refresh" @click="fetchCatalogo" />
+                        <q-btn flat color="primary" icon="refresh" @click="fetchCatalogo" />
                       </div>
-                      <q-table dense flat separator="horizontal" :rows="catalogo" :columns="[
+                      <q-table dense flat :rows="catalogo" :columns="[
                         { name: 'codigo', label: 'Código', field: 'codigo', sortable: true },
                         { name: 'nombre', label: 'Nombre', field: 'nombre', sortable: true },
                         { name: 'tipo', label: 'Tipo', field: 'tipo', sortable: true },
@@ -398,40 +361,21 @@
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'manual'">
-                    <div class="glass-card soft q-pa-md">
-                      <div class="text-h5 q-mb-md brand-grad">📖 Manual de Cuentas</div>
-                      <div class="text-subtitle1 text-grey-4 q-mb-lg">Descripción y uso de cada cuenta contable</div>
-                      
+                  <div v-show="page === 'manual'">
+                    <div class="rest-card q-pa-md">
+                      <div class="text-h5 q-mb-md brand-font text-primary">📖 Manual de Cuentas</div>
                       <q-list separator>
                         <q-item v-for="cuenta in catalogo" :key="cuenta.codigo" class="q-pa-md">
                           <q-item-section>
-                            <q-item-label class="text-h6 text-cyan">{{ cuenta.codigo }} - {{ cuenta.nombre }}</q-item-label>
-                            <q-item-label caption class="q-mt-sm text-grey-4">
+                            <q-item-label class="text-h6 text-secondary">{{ cuenta.codigo }} - {{ cuenta.nombre }}</q-item-label>
+                            <q-item-label caption class="q-mt-sm text-grey-8">
                               <strong>Tipo:</strong> {{ cuenta.tipo }} | <strong>Nivel:</strong> {{ cuenta.nivel }}
                             </q-item-label>
-                            <q-item-label class="q-mt-sm text-grey-3">
-                              <template v-if="cuenta.codigo === '1.1.1'">
-                                <strong>Uso:</strong> Controla el efectivo disponible en caja. Se debita al recibir dinero y se acredita al realizar pagos en efectivo.
-                              </template>
-                              <template v-else-if="cuenta.codigo === '1.1.2'">
-                                <strong>Uso:</strong> Registra los saldos en cuentas bancarias. Aumenta con depósitos y disminuye con cheques o transferencias.
-                              </template>
-                              <template v-else-if="cuenta.codigo === '1.1.3'">
-                                <strong>Uso:</strong> Cuentas por cobrar a clientes por ventas a crédito. Se debita al generar la venta y se acredita al cobrar.
-                              </template>
-                              <template v-else-if="cuenta.codigo === '2.1.1'">
-                                <strong>Uso:</strong> Cuentas por pagar a proveedores por compras a crédito. Se acredita al registrar la compra y se debita al pagar.
-                              </template>
-                              <template v-else-if="cuenta.codigo === '4.1'">
-                                <strong>Uso:</strong> Ingresos por ventas de productos o servicios. Se acredita al generar una venta.
-                              </template>
-                              <template v-else-if="cuenta.codigo === '5.1'">
-                                <strong>Uso:</strong> Gastos operativos administrativos. Se debita al incurrir en gastos de operación.
-                              </template>
-                              <template v-else>
-                                <strong>Uso:</strong> Cuenta de tipo {{ cuenta.tipo }} de nivel {{ cuenta.nivel }}. Consulta con el contador para su uso específico.
-                              </template>
+                            <q-item-label class="q-mt-sm text-brown">
+                              <template v-if="cuenta.codigo === '1.1.1'"><strong>Uso:</strong> Controla el efectivo disponible en caja.</template>
+                              <template v-else-if="cuenta.codigo === '1.1.2'"><strong>Uso:</strong> Registra los saldos en cuentas bancarias.</template>
+                              <template v-else-if="cuenta.codigo === '4.1'"><strong>Uso:</strong> Ingresos por ventas de platillos y bebidas.</template>
+                              <template v-else><strong>Uso:</strong> Definido por el contador del restaurante.</template>
                             </q-item-label>
                           </q-item-section>
                         </q-item>
@@ -439,27 +383,24 @@
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'diario'">
-                    <div class="glass-card soft q-pa-md q-mb-md">
-                      <div class="text-subtitle1 q-mb-sm">Nueva partida</div>
+                  <div v-show="page === 'diario'">
+                    <div class="rest-card q-pa-md q-mb-md">
+                      <div class="text-subtitle1 text-primary brand-font q-mb-sm">Nueva partida</div>
                       <q-form @submit.prevent="registrarPartida">
-                        <q-input v-model="formPartida.fecha" filled label="Fecha (YYYY-MM-DD)" readonly class="q-mb-sm" />
-                        <q-input v-model="formPartida.descripcion" filled label="Descripción" class="q-mb-sm" />
+                        <q-input v-model="formPartida.fecha" filled label="Fecha" readonly class="q-mb-sm" dense />
+                        <q-input v-model="formPartida.descripcion" filled label="Descripción" class="q-mb-sm" dense />
                         <div class="row q-col-gutter-sm">
-                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_debe" filled label="Cuenta Debe (ej: 1.1.1)" /></div>
-                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_haber" filled label="Cuenta Haber (ej: 4.1)" /></div>
+                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_debe" filled label="Cuenta Debe" dense /></div>
+                          <div class="col-12 col-md-6"><q-input v-model="formPartida.cuenta_haber" filled label="Cuenta Haber" dense /></div>
                         </div>
-                        <q-input v-model.number="formPartida.monto" filled label="Monto" type="number" prefix="$" class="q-mt-sm" />
-                        <div class="q-mt-md"><q-btn color="primary" label="Registrar" type="submit" :loading="loading" /></div>
+                        <q-input v-model.number="formPartida.monto" filled label="Monto" type="number" prefix="$" class="q-mt-sm" dense />
+                        <div class="q-mt-md"><q-btn style="background: var(--primary); color: white;" label="Registrar" type="submit" :loading="loading" /></div>
                       </q-form>
                     </div>
-                    <div class="glass-card soft q-pa-md">
+                    <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-sm">
-                        <div class="col">
-                          <div class="text-h6">Libro Diario</div>
-                          <div class="text-subtitle2 text-grey-5">Partidas registradas</div>
-                        </div>
-                        <q-btn flat color="white" icon="refresh" @click="fetchDiario" />
+                        <div class="col"><div class="text-h6 brand-font text-primary">Libro Diario</div></div>
+                        <q-btn flat color="primary" icon="refresh" @click="fetchDiario" />
                       </div>
                       <q-table flat dense :rows="diario" row-key="id" :columns="[
                         { name:'fecha', label:'Fecha', field:'fecha', sortable:true },
@@ -471,14 +412,14 @@
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'mayor'">
-                    <div class="glass-card soft q-pa-md">
+                  <div v-show="page === 'mayor'">
+                    <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-sm">
                         <div class="col">
-                          <div class="text-h6">📊 Libro Mayor</div>
-                          <div class="text-subtitle2 text-grey-5">Saldos de debe y haber por cuenta</div>
+                          <div class="text-h6 brand-font text-primary">📊 Libro Mayor</div>
+                          <div class="text-subtitle2 text-grey-7">Saldos consolidados</div>
                         </div>
-                        <q-btn flat color="white" icon="refresh" @click="fetchMayor" />
+                        <q-btn flat color="primary" icon="refresh" @click="fetchMayor" />
                       </div>
                       <q-table flat dense :rows="mayor" row-key="cuenta" :columns="[
                         { name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },
@@ -489,40 +430,31 @@
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'ajustes'">
-                    <div class="glass-card soft q-pa-md q-mb-md">
-                      <div class="text-h6 q-mb-md">⚙️ Nueva Partida de Ajuste</div>
+                  <div v-show="page === 'ajustes'">
+                    <div class="rest-card q-pa-md q-mb-md">
+                      <div class="text-h6 brand-font text-primary q-mb-md">⚙️ Partida de Ajuste</div>
                       <q-form @submit.prevent="registrarAjuste">
-                        <q-input v-model="formAjuste.fecha" filled label="Fecha (YYYY-MM-DD)" readonly class="q-mb-sm" />
-                        <q-input v-model="formAjuste.descripcion" filled label="Descripción del ajuste" class="q-mb-sm" />
+                        <q-input v-model="formAjuste.fecha" filled label="Fecha" readonly class="q-mb-sm" dense />
+                        <q-input v-model="formAjuste.descripcion" filled label="Descripción" class="q-mb-sm" dense />
                         <div class="row q-col-gutter-sm">
-                          <div class="col-12 col-md-6"><q-input v-model="formAjuste.cuenta_debe" filled label="Cuenta Debe" /></div>
-                          <div class="col-12 col-md-6"><q-input v-model="formAjuste.cuenta_haber" filled label="Cuenta Haber" /></div>
+                          <div class="col-12 col-md-6"><q-input v-model="formAjuste.cuenta_debe" filled label="Debe" dense /></div>
+                          <div class="col-12 col-md-6"><q-input v-model="formAjuste.cuenta_haber" filled label="Haber" dense /></div>
                         </div>
-                        <q-input v-model.number="formAjuste.monto" filled label="Monto" type="number" prefix="$" class="q-mt-sm" />
-                        <div class="q-mt-md"><q-btn color="orange" label="Registrar Ajuste" type="submit" :loading="loading" /></div>
+                        <q-input v-model.number="formAjuste.monto" filled label="Monto" type="number" prefix="$" class="q-mt-sm" dense />
+                        <div class="q-mt-md"><q-btn color="orange-9" label="Registrar Ajuste" type="submit" :loading="loading" /></div>
                       </q-form>
                     </div>
-                    <div class="glass-card soft q-pa-md">
-                      <div class="text-subtitle1 q-mb-sm">Partidas de ajuste registradas</div>
-                      <q-table flat dense :rows="diario.filter(p => p.tipo === 'ajuste')" row-key="id" :columns="[
-                        { name:'fecha', label:'Fecha', field:'fecha', sortable:true },
-                        { name:'descripcion', label:'Descripción', field:'descripcion' },
-                        { name:'cuenta_debe', label:'Debe', field:'cuenta_debe' },
-                        { name:'cuenta_haber', label:'Haber', field:'cuenta_haber' },
-                        { name:'monto', label:'Monto', field:'monto', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }
-                      ]" />
+                    <div class="rest-card q-pa-md">
+                      <div class="text-subtitle1 text-primary">Historial de Ajustes</div>
+                      <q-table flat dense :rows="diario.filter(p => p.tipo === 'ajuste')" row-key="id" />
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'balanza'">
-                    <div class="glass-card soft q-pa-md">
+                  <div v-show="page === 'balanza'">
+                    <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-md">
-                        <div class="col">
-                          <div class="text-h5">⚖️ Balanza de Comprobación</div>
-                          <div class="text-subtitle2 text-grey-5">Verificación de sumas y saldos</div>
-                        </div>
-                        <q-btn flat color="white" icon="refresh" @click="fetchBalanza" />
+                        <div class="col"><div class="text-h5 brand-font text-primary">⚖️ Balanza de Comprobación</div></div>
+                        <q-btn flat color="primary" icon="refresh" @click="fetchBalanza" />
                       </div>
                       <q-table v-if="balanza" flat dense :rows="balanza.cuentas" row-key="cuenta" :columns="[
                         { name:'cuenta', label:'Cuenta', field:'cuenta', sortable:true, align:'left' },
@@ -531,19 +463,11 @@
                         { name:'saldo', label:'Saldo', field:'saldo', format:(v)=>'$'+Number(v).toFixed(2), align:'right' }
                       ]" :loading="loading">
                         <template v-slot:bottom>
-                          <div class="full-width q-pa-md" style="background: rgba(6, 182, 212, 0.1); border-top: 2px solid #06b6d4;">
-                            <div class="row q-gutter-md text-h6">
-                              <div class="col text-right">Total Debe: <span class="text-cyan">\${{ balanza.totales.debe.toFixed(2) }}</span></div>
-                              <div class="col text-right">Total Haber: <span class="text-cyan">\${{ balanza.totales.haber.toFixed(2) }}</span></div>
-                              <div class="col text-right">
-                                Diferencia: 
-                                <span :class="balanza.totales.diferencia === 0 ? 'text-green' : 'text-red'">
-                                  \${{ balanza.totales.diferencia.toFixed(2) }}
-                                </span>
-                              </div>
-                            </div>
-                            <div v-if="balanza.totales.diferencia === 0" class="text-center q-mt-sm text-green text-weight-bold">
-                              ✓ La balanza está cuadrada
+                          <div class="full-width q-pa-md" style="background: #FFFCE0; border-top: 2px solid var(--secondary);">
+                            <div class="row q-gutter-md text-h6 text-brown">
+                              <div class="col text-right">Total Debe: <span class="text-primary">\${{ balanza.totales.debe.toFixed(2) }}</span></div>
+                              <div class="col text-right">Total Haber: <span class="text-primary">\${{ balanza.totales.haber.toFixed(2) }}</span></div>
+                              <div class="col text-right">Dif: <span :class="balanza.totales.diferencia === 0 ? 'text-green' : 'text-red'">\${{ balanza.totales.diferencia.toFixed(2) }}</span></div>
                             </div>
                           </div>
                         </template>
@@ -551,234 +475,154 @@
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'balance-inicial'">
-                    <div class="glass-card soft q-pa-md">
-                      <div class="text-h5 q-mb-md">🏛️ Balance Inicial</div>
-                      <div class="text-subtitle1 text-grey-4 q-mb-lg">Situación patrimonial al inicio del periodo</div>
+                  <div v-show="page === 'balance-inicial'">
+                     <div class="rest-card q-pa-md">
+                        <div class="text-h5 brand-font text-primary q-mb-lg">🏛️ Balance Inicial</div>
+                        <div v-if="balanceGeneral" class="row q-col-gutter-md">
+                          <div class="col-4"><q-card class="bg-blue-1 text-blue-9 q-pa-md"><div class="text-h6">Activos</div><div class="text-h4">\${{ balanceGeneral.activos }}</div></q-card></div>
+                          <div class="col-4"><q-card class="bg-orange-1 text-orange-9 q-pa-md"><div class="text-h6">Pasivos</div><div class="text-h4">\${{ balanceGeneral.pasivos }}</div></q-card></div>
+                          <div class="col-4"><q-card class="bg-purple-1 text-purple-9 q-pa-md"><div class="text-h6">Capital</div><div class="text-h4">\${{ balanceGeneral.capital }}</div></q-card></div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div v-show="page === 'estados-financieros'">
+                    <div class="rest-card q-pa-md q-mb-md">
+                      <div class="text-h5 brand-font text-primary q-mb-md">📈 Balance General</div>
                       <div v-if="balanceGeneral" class="row q-col-gutter-md">
-                        <div class="col-12 col-md-6">
-                          <q-card flat bordered style="background: rgba(34, 211, 238, 0.05); border-color: #22d3ee;">
-                            <q-card-section>
-                              <div class="text-h6 text-cyan">ACTIVOS</div>
-                              <div class="text-h4 q-mt-md">\${{ balanceGeneral.activos.toFixed(2) }}</div>
-                            </q-card-section>
-                          </q-card>
-                        </div>
-                        <div class="col-12 col-md-6">
-                          <q-card flat bordered style="background: rgba(251, 146, 60, 0.05); border-color: #fb923c;">
-                            <q-card-section>
-                              <div class="text-h6" style="color: #fb923c;">PASIVOS</div>
-                              <div class="text-h4 q-mt-md">\${{ balanceGeneral.pasivos.toFixed(2) }}</div>
-                            </q-card-section>
-                          </q-card>
-                        </div>
-                        <div class="col-12">
-                          <q-card flat bordered style="background: rgba(168, 85, 247, 0.05); border-color: #a855f7;">
-                            <q-card-section>
-                              <div class="text-h6" style="color: #a855f7;">CAPITAL</div>
-                              <div class="text-h4 q-mt-md">\${{ balanceGeneral.capital.toFixed(2) }}</div>
-                            </q-card-section>
-                          </q-card>
-                        </div>
+                        <div class="col-6"><div class="text-subtitle1 text-primary">ACTIVOS</div><div class="text-h4">\${{ balanceGeneral.activos.toFixed(2) }}</div></div>
+                        <div class="col-6"><div class="text-subtitle1 text-orange-9">PASIVOS + CAPITAL</div><div class="text-h4">\${{ (balanceGeneral.pasivos + balanceGeneral.capital).toFixed(2) }}</div></div>
                       </div>
+                      <q-separator class="q-my-md" />
+                      <div class="text-center"><q-chip :color="balanceGeneral.ecuacion ? 'green' : 'red'" text-color="white">{{ balanceGeneral.ecuacion ? 'Cuadrado' : 'Descuadrado' }}</q-chip></div>
+                    </div>
+                    <div class="rest-card q-pa-md">
+                      <div class="text-h5 brand-font text-primary q-mb-md">💰 Estado de Resultados</div>
+                       <div v-if="balanceGeneral" class="row q-col-gutter-md">
+                          <div class="col-6"><div class="text-green-9">INGRESOS: \${{ balanceGeneral.ingresos }}</div></div>
+                          <div class="col-6"><div class="text-red-9">GASTOS: \${{ balanceGeneral.gastos }}</div></div>
+                       </div>
+                       <div class="text-center q-mt-lg">
+                          <div class="text-h4" :class="balanceGeneral.utilidad >= 0 ? 'text-green-9' : 'text-red-9'">\${{ balanceGeneral.utilidad.toFixed(2) }}</div>
+                          <div class="text-subtitle2">Utilidad/Pérdida</div>
+                       </div>
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'estados-financieros'">
-                    <div class="glass-card soft q-pa-md q-mb-md">
-                      <div class="text-h5 q-mb-md brand-grad">📈 Balance General</div>
-                      <div v-if="balanceGeneral" class="q-gutter-md">
-                        <div class="row q-col-gutter-md">
-                          <div class="col-12 col-md-6">
-                            <div class="text-subtitle1 text-cyan q-mb-sm">ACTIVOS</div>
-                            <div class="text-h4">\${{ balanceGeneral.activos.toFixed(2) }}</div>
-                          </div>
-                          <div class="col-12 col-md-6">
-                            <div class="text-subtitle1 q-mb-sm" style="color: #fb923c;">PASIVOS + CAPITAL</div>
-                            <div class="text-h4">\${{ (balanceGeneral.pasivos + balanceGeneral.capital).toFixed(2) }}</div>
-                          </div>
-                        </div>
-                        <q-separator class="q-my-md" />
-                        <div class="text-center">
-                          <q-chip :color="balanceGeneral.ecuacion ? 'green' : 'red'" text-color="white" icon="check_circle">
-                            {{ balanceGeneral.ecuacion ? 'Balance cuadrado ✓' : 'Balance descuadrado ✗' }}
-                          </q-chip>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="glass-card soft q-pa-md">
-                      <div class="text-h5 q-mb-md brand-grad">💰 Estado de Resultados (Pérdidas y Ganancias)</div>
-                      <div v-if="balanceGeneral" class="q-gutter-md">
-                        <div class="row q-col-gutter-md">
-                          <div class="col-12 col-md-6">
-                            <q-card flat bordered style="background: rgba(34, 197, 94, 0.1); border-color: #22c55e;">
-                              <q-card-section>
-                                <div class="text-subtitle1 text-green">INGRESOS</div>
-                                <div class="text-h5 q-mt-sm">\${{ balanceGeneral.ingresos.toFixed(2) }}</div>
-                              </q-card-section>
-                            </q-card>
-                          </div>
-                          <div class="col-12 col-md-6">
-                            <q-card flat bordered style="background: rgba(239, 68, 68, 0.1); border-color: #ef4444;">
-                              <q-card-section>
-                                <div class="text-subtitle1 text-red">GASTOS</div>
-                                <div class="text-h5 q-mt-sm">\${{ balanceGeneral.gastos.toFixed(2) }}</div>
-                              </q-card-section>
-                            </q-card>
-                          </div>
-                        </div>
-                        <q-separator class="q-my-md" />
-                        <div class="text-center">
-                          <div class="text-h6 text-grey-4">UTILIDAD / PÉRDIDA DEL EJERCICIO</div>
-                          <div class="text-h3 q-mt-sm" :class="balanceGeneral.utilidad >= 0 ? 'text-green' : 'text-red'">
-                            \${{ balanceGeneral.utilidad.toFixed(2) }}
-                          </div>
-                          <div class="text-subtitle2 q-mt-sm" :class="balanceGeneral.utilidad >= 0 ? 'text-green' : 'text-red'">
-                            {{ balanceGeneral.utilidad >= 0 ? '📈 Utilidad' : '📉 Pérdida' }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-12" v-show="page === 'facturacion'">
-                    <div class="glass-card soft q-pa-md q-mb-md">
-                      <div class="text-h6 q-mb-md">📄 Nueva Factura Digital</div>
+                  <div v-show="page === 'facturacion'">
+                    <div class="rest-card q-pa-md q-mb-md">
+                      <div class="text-h6 brand-font text-primary q-mb-md">📄 Nuevo Pedido / Factura</div>
                       <q-form @submit.prevent="crearFactura">
                         <div class="row q-col-gutter-sm">
-                          <div class="col-12 col-md-6">
-                            <q-input v-model="formFactura.cliente" filled label="Nombre del Cliente" dense />
-                          </div>
-                          <div class="col-12 col-md-6">
-                            <q-input v-model="formFactura.nit" filled label="NIT/DUI" dense />
-                          </div>
-                          <div class="col-12">
-                            <q-input v-model="formFactura.direccion" filled label="Dirección" dense />
-                          </div>
-                          <div class="col-12">
-                            <q-input v-model="formFactura.descripcion" filled label="Descripción del Servicio/Producto" type="textarea" rows="2" />
-                          </div>
-                          <div class="col-12 col-md-4">
-                            <q-input v-model.number="formFactura.cantidad" filled label="Cantidad" type="number" dense />
-                          </div>
-                          <div class="col-12 col-md-4">
-                            <q-input v-model.number="formFactura.precio_unitario" filled label="Precio Unitario" type="number" prefix="$" step="0.01" dense />
-                          </div>
-                          <div class="col-12 col-md-4">
-                            <q-input readonly filled :model-value="((formFactura.cantidad || 0) * (formFactura.precio_unitario || 0)).toFixed(2)" label="Total" prefix="$" dense class="bg-cyan-10" />
-                          </div>
-                        </div>
-                        <div class="q-mt-md">
-                          <q-btn color="cyan" label="Generar Factura" icon="receipt" type="submit" :loading="loading" />
+                          <div class="col-12 col-md-6"><q-input v-model="formFactura.cliente" filled label="Cliente" dense /></div>
+                          <div class="col-12 col-md-6"><q-input v-model="formFactura.nit" filled label="NIT/DUI" dense /></div>
+                          <div class="col-12"><q-input v-model="formFactura.descripcion" filled label="Platillo / Servicio" dense /></div>
+                          <div class="col-4"><q-input v-model.number="formFactura.cantidad" filled label="Cant." type="number" dense /></div>
+                          <div class="col-4"><q-input v-model.number="formFactura.precio_unitario" filled label="Precio Unit." type="number" dense /></div>
+                          <div class="col-4"><q-btn color="primary" label="Generar" type="submit" :loading="loading" class="full-width" /></div>
                         </div>
                       </q-form>
                     </div>
 
-                    <!-- Vista previa de factura -->
-                    <div v-if="facturaPreview" class="glass-card soft q-pa-lg" id="factura-preview" style="background: white; color: #1e293b;">
-                      <div class="row items-center q-mb-md">
-                        <div class="col">
-                          <div class="text-h4 text-cyan-8 text-weight-bold">FACTURA</div>
-                          <div class="text-subtitle2 text-grey-7">Sistema Contable Digital</div>
+                    <div v-if="facturaPreview" class="q-pa-lg shadow-3" id="factura-preview" style="background: #FFF8E7; color: #3E2723; border-radius: 12px; font-family: 'Georgia', serif; position: relative; padding-bottom: 60px;">
+                      <div class="row items-center justify-between q-mb-md">
+                        <div class="col-auto row items-center">
+                          <div class="q-mr-md">
+                             <svg width="70" height="70" viewBox="0 0 100 100" fill="none">
+                              <circle cx="50" cy="50" r="48" stroke="#A63333" stroke-width="4" fill="#FFFCE0"/>
+                              <path d="M50 20 C35 20 30 35 30 45 L70 45 C70 35 65 20 50 20Z" fill="#A63333"/>
+                              <path d="M40 15 Q45 5 50 15 T60 15" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div class="text-h3 text-weight-bold" style="color: #A63333; font-family: cursive, serif;">El Buen Gusto</div>
+                            <div class="text-subtitle1 text-brown-8" style="font-style: italic;">Cocina de Tradición</div>
+                          </div>
                         </div>
                         <div class="col-auto text-right">
-                          <div class="text-caption text-grey-7">No. Factura</div>
-                          <div class="text-h6 text-weight-bold">{{ facturaPreview.id || 'DRAFT' }}</div>
-                          <div class="text-caption text-grey-7 q-mt-sm">{{ facturaPreview.fecha }}</div>
+                          <div class="text-h6 text-uppercase" style="color: #A63333; border-bottom: 2px solid #D4AF37;">Cuenta / Factura</div>
+                          <div class="text-h5 text-weight-bold q-mt-sm">Nº {{ facturaPreview.id }}</div>
+                          <div class="text-subtitle1">{{ facturaPreview.fecha }}</div>
                         </div>
                       </div>
-                      <q-separator class="q-my-md" color="cyan-8" />
-                      <div class="row q-col-gutter-md q-mb-md">
-                        <div class="col-12 col-md-6">
-                          <div class="text-weight-bold text-cyan-8 q-mb-xs">FACTURADO A:</div>
-                          <div>{{ facturaPreview.cliente }}</div>
-                          <div class="text-caption">NIT/DUI: {{ facturaPreview.nit || 'N/A' }}</div>
-                          <div class="text-caption">{{ facturaPreview.direccion || 'Sin dirección' }}</div>
+                      <q-separator class="q-my-lg" style="background: #D4AF37; height: 3px;" />
+                      
+                      <div class="row q-col-gutter-lg q-mb-xl">
+                        <div class="col-6">
+                           <div class="text-h6 text-primary q-mb-sm" style="border-bottom: 1px solid #E0C080;">Establecimiento</div>
+                           <div class="text-brown-9">Restaurante El Buen Gusto, S.A. de C.V.<br>NIT: 0614-010120-123-4<br>Zona Rosa, San Salvador</div>
                         </div>
-                        <div class="col-12 col-md-6">
-                          <div class="text-weight-bold text-cyan-8 q-mb-xs">DATOS DE LA EMPRESA:</div>
-                          <div>Sistema Contable S.A. de C.V.</div>
-                          <div class="text-caption">NIT: 0000-000000-000-0</div>
-                          <div class="text-caption">Tel: (503) 0000-0000</div>
+                        <div class="col-6">
+                          <div class="text-h6 text-primary q-mb-sm" style="border-bottom: 1px solid #E0C080;">Comensal</div>
+                          <div class="text-brown-9 text-weight-bold">{{ facturaPreview.cliente }}</div>
+                          <div class="text-brown-9">NIT/DUI: {{ facturaPreview.nit || 'C.F.' }}</div>
                         </div>
                       </div>
-                      <q-separator class="q-my-md" />
-                      <table style="width: 100%; border-collapse: collapse; color: #1e293b;">
-                        <thead style="background: #06b6d4; color: white;">
+
+                      <table style="width: 100%; border-collapse: separate; border: 2px solid #D4AF37; border-radius: 10px; margin-bottom: 30px;">
+                        <thead style="background: #A63333; color: #FFF8E7;">
                           <tr>
-                            <th style="padding: 8px; text-align: left; border: 1px solid #0891b2;">Descripción</th>
-                            <th style="padding: 8px; text-align: center; border: 1px solid #0891b2;">Cantidad</th>
-                            <th style="padding: 8px; text-align: right; border: 1px solid #0891b2;">Precio Unit.</th>
-                            <th style="padding: 8px; text-align: right; border: 1px solid #0891b2;">Total</th>
+                            <th style="padding: 10px; text-align: left;">Descripción</th>
+                            <th style="padding: 10px;">Cant.</th>
+                            <th style="padding: 10px; text-align: right;">Unit.</th>
+                            <th style="padding: 10px; text-align: right;">Total</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td style="padding: 8px; border: 1px solid #cbd5e1;">{{ facturaPreview.descripcion }}</td>
-                            <td style="padding: 8px; text-align: center; border: 1px solid #cbd5e1;">{{ facturaPreview.cantidad || 1 }}</td>
-                            <td style="padding: 8px; text-align: right; border: 1px solid #cbd5e1;">\${{ (facturaPreview.precio_unitario || facturaPreview.monto).toFixed(2) }}</td>
-                            <td style="padding: 8px; text-align: right; border: 1px solid #cbd5e1; font-weight: bold;">\${{ facturaPreview.monto.toFixed(2) }}</td>
+                          <tr style="background: #FFFCE0;">
+                            <td style="padding: 10px; border-bottom: 1px solid #E0C080;">{{ facturaPreview.descripcion }}</td>
+                            <td style="padding: 10px; text-align: center; border-bottom: 1px solid #E0C080;">{{ facturaPreview.cantidad || 1 }}</td>
+                            <td style="padding: 10px; text-align: right; border-bottom: 1px solid #E0C080;">\${{ (facturaPreview.precio_unitario || facturaPreview.monto).toFixed(2) }}</td>
+                            <td style="padding: 10px; text-align: right; border-bottom: 1px solid #E0C080; font-weight: bold; color: #A63333;">\${{ facturaPreview.monto.toFixed(2) }}</td>
                           </tr>
                         </tbody>
                       </table>
-                      <div class="row justify-end q-mt-md">
-                        <div class="col-12 col-md-4" style="background: #ecfeff; padding: 12px; border-radius: 4px; border: 2px solid #06b6d4;">
-                          <div class="row items-center justify-between q-mb-xs">
-                            <div class="text-grey-8">Subtotal:</div>
-                            <div>\${{ facturaPreview.monto.toFixed(2) }}</div>
-                          </div>
-                          <div class="row items-center justify-between q-mb-xs">
-                            <div class="text-grey-8">IVA (13%):</div>
-                            <div>\${{ (facturaPreview.monto * 0.13).toFixed(2) }}</div>
-                          </div>
-                          <q-separator class="q-my-xs" />
-                          <div class="row items-center justify-between">
-                            <div class="text-weight-bold text-h6 text-cyan-8">TOTAL:</div>
-                            <div class="text-weight-bold text-h6 text-cyan-8">\${{ (facturaPreview.monto * 1.13).toFixed(2) }}</div>
-                          </div>
+
+                      <div class="row justify-end q-mb-xl">
+                        <div class="col-5">
+                          <q-card flat class="q-pa-md" style="background: #FEF5E7; border: 2px solid #D4AF37;">
+                            <div class="row justify-between text-brown-9"><div class="text-h6">Total:</div><div class="text-h4 text-primary text-weight-bold">\${{ facturaPreview.monto.toFixed(2) }}</div></div>
+                          </q-card>
                         </div>
                       </div>
-                      <div class="q-mt-lg text-center text-caption text-grey-6">
-                        Gracias por su compra - Documento generado digitalmente
+
+                      <div class="text-center no-print q-mb-lg">
+                        <q-btn push icon="print" label="Imprimir Cuenta" style="background: #A63333; color: white;" @click="imprimirFactura" />
                       </div>
-                      <div class="q-mt-md text-center">
-                        <q-btn outline color="cyan-8" label="Imprimir Factura" icon="print" @click="imprimirFactura" />
+                      <div style="position: absolute; bottom: 15px; left: 0; right: 0; text-align: center; color: #5D4037; font-size: 0.9rem; border-top: 1px solid #E0C080; padding-top: 10px;">
+                        <div>© 2025 Restaurante El Buen Gusto - Todos los derechos reservados</div>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-12" v-show="page === 'ventas'">
-                    <div class="glass-card soft q-pa-md">
+                  <div v-show="page === 'ventas'">
+                    <div class="rest-card q-pa-md">
                       <div class="row items-center q-mb-sm">
-                        <div class="col">
-                          <div class="text-h6">Ventas del día</div>
-                          <div class="text-subtitle2 text-grey-5">Histórico de facturación</div>
-                        </div>
-                        <q-btn flat color="white" icon="refresh" @click="fetchVentas" />
+                        <div class="col"><div class="text-h6 text-primary brand-font">Ventas del día</div></div>
+                        <q-btn flat color="primary" icon="refresh" @click="fetchVentas" />
                       </div>
-                      <q-table flat dense :rows="ventas" row-key="id" :columns="[
-                        { name:'fecha', label:'Fecha', field:'fecha', sortable:true },
-                        { name:'cliente', label:'Cliente', field:'cliente' },
-                        { name:'descripcion', label:'Descripción', field:'descripcion' },
-                        { name:'monto', label:'Monto', field:'monto', align:'right', format:(v)=>'$'+Number(v).toFixed(2) }
-                      ]" />
+                      <q-table flat dense :rows="ventas" row-key="id" />
                     </div>
                   </div>
-                </div>
-              </q-page>
-            </q-page-container>
-          </q-layout>
-        `
-      }
 
-      createApp(App).use(Quasar, { 
-        config: { 
-          brand: { primary: '#06b6d4' },
-          dark: true  // Habilitar modo oscuro global
-        } 
-      }).mount('#app')
-      }
-    </script>
-  </body>
-  </html>
+                </div>
+              </div>
+            </q-page>
+          </q-page-container>
+          
+          <q-footer class="text-center text-grey-4 q-py-sm">
+            <div>© 2025 Restaurante El Buen Gusto - Todos los derechos reservados</div>
+          </q-footer>
+        </q-layout>
+      `
+    }
+
+    createApp(App).use(Quasar, { 
+      config: { 
+        brand: { primary: '#A63333', secondary: '#D4AF37' },
+        dark: false // IMPORTANTE: False para que los inputs se vean bien en fondo claro
+      } 
+    }).mount('#app')
+  </script>
+</body>
+</html>
